@@ -462,7 +462,6 @@ export const BombGame: React.FC<BombGameProps> = ({
           };
           return {
             ...prev,
-            points: prev.points + 50,
             records: updatedRecords
           };
         });
@@ -531,11 +530,6 @@ export const BombGame: React.FC<BombGameProps> = ({
     setGameStage('welcome');
     onNotification("运动完毕！大家和身体都得到了极棒的锻炼！🌟", "Smile");
     onPointsChange(10, "完成数字炸弹趣味运动惩罚鼓励奖"); // friendly consolation points
-    
-    setProfile(prev => ({
-      ...prev,
-      points: prev.points + 10
-    }));
   };
 
   return (

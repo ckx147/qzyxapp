@@ -147,7 +147,6 @@ export const SchulteGame: React.FC<SchulteProps> = ({
 
       return {
         ...prev,
-        points: prev.points + baseReward,
         records: recordsCopy
       };
     });

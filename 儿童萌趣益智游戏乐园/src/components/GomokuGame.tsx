@@ -307,58 +307,64 @@ export const GomokuGame: React.FC<GomokuProps> = ({
       soundSynth.playClick();
     }
 
+    let rewardPoints = 0;
+
+    if (gameMode === 'ai') {
+      if (finalWinner === PLAYER_PIECE) {
+        rewardPoints = 100; // Major win reward!
+
+        // Triggers win record achievements
+        setAchievements(prevAchs => {
+          return prevAchs.map(ach => {
+            if (ach.id === 'ach_gomoku_1') {
+              return { ...ach, progress: 1 };
+            }
+            return ach;
+          });
+        });
+
+        onNotification("恭喜小勇士旗开得胜！获得了 100 星星！小布为你疯狂鼓掌！⚫🏆🎉", "Award");
+      } else if (finalWinner === AI_PIECE) {
+        rewardPoints = 15; // comfort reward for kids
+        onNotification("小布险胜咯！加油，明天继续开战，你肯定能反超！🌱", "Info");
+      } else {
+        rewardPoints = 30; // friendly draw split
+        onNotification("棋逢对手，是一场精彩的平局！继续切磋吧！🤝", "Info");
+      }
+    } else {
+      // PvP Mode - Double player interactive reward
+      rewardPoints = 50;
+      if (finalWinner === PLAYER_PIECE) {
+        onNotification("太棒了！亲子对战宝贝（黑子 ⚫）获胜了！获得拼搏对战星章 +50！🏆", "Award");
+      } else if (finalWinner === AI_PIECE) {
+        onNotification("好玩！家长/伙伴（白子 ⚪）获胜了！全家都是高智商！获得互动星章 +50！🎉", "Award");
+      } else {
+        onNotification("亲子棋逢对手，平分秋色！继续加油打气吧！🤝", "Info");
+      }
+    }
+
+    if (rewardPoints > 0) {
+      onPointsChange(rewardPoints, "益智五子棋对战");
+    }
+
     setProfile(prev => {
       const recordsCopy = { ...prev.records };
-      let updatedPoints = prev.points;
-
       if (gameMode === 'ai') {
         if (finalWinner === PLAYER_PIECE) {
           recordsCopy.gomokuWins += 1;
-          updatedPoints += 100; // Major win reward!
-          
-          // Triggers win record achievements
-          setAchievements(prevAchs => {
-            return prevAchs.map(ach => {
-              if (ach.id === 'ach_gomoku_1') {
-                return { ...ach, progress: 1 };
-              }
-              return ach;
-            });
-          });
-          
-          onNotification("恭喜小勇士旗开得胜！获得了 100 星星！小布为你疯狂鼓掌！⚫🏆🎉", "Award");
         } else if (finalWinner === AI_PIECE) {
           recordsCopy.gomokuLosses += 1;
-          updatedPoints += 15; // comfort reward for kids
-          onNotification("小布险胜咯！加油，明天继续开战，你肯定能反超！🌱", "Info");
         } else {
           recordsCopy.gomokuDraws += 1;
-          updatedPoints += 30; // friendly draw split
-          onNotification("棋逢对手，是一场精彩的平局！继续切磋吧！🤝", "Info");
         }
       } else {
-        // PvP Mode - Double player interactive reward
-        updatedPoints += 50; 
         if (finalWinner === PLAYER_PIECE) {
-          recordsCopy.gomokuWins += 1; // count as win for baby\n          onNotification("太棒了！亲子对战宝贝（黑子 ⚫）获胜了！获得拼搏对战星章 +50！🏆", "Award");
-        } else if (finalWinner === AI_PIECE) {
-          onNotification("好玩！家长/伙伴（白子 ⚪）获胜了！全家都是高智商！获得互动星章 +50！🎉", "Award");
-        } else {
-          onNotification("亲子棋逢对手，平分秋色！继续加油打气吧！🤝", "Info");
+          recordsCopy.gomokuWins += 1; // count as win for baby
         }
-      }
-
-      // Calculate state difference and request point addition
-      const diff = updatedPoints - prev.points;
-      if (diff > 0) {
-        setTimeout(() => {
-          onPointsChange(diff, "益智五子棋对战");
-        }, 50);
       }
 
       return {
         ...prev,
-        points: updatedPoints,
         records: recordsCopy
       };
     });

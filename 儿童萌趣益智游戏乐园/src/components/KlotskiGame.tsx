@@ -211,7 +211,6 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
 
       return {
         ...prev,
-        points: prev.points + rewardPoints,
         records: recordsCopy
       };
     });
