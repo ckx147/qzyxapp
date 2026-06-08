@@ -1,0 +1,110 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@500;700&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Outfit", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, monospace;
+}
+
+@layer utilities {
+  /* Premium playful keyframes and animations */
+  @keyframes float-gentle {
+    0%, 100% { transform: translateY(0) rotate(0deg); }
+    50% { transform: translateY(-8px) rotate(1.5deg); }
+  }
+
+  @keyframes pulse-gentle {
+    0%, 100% { opacity: 0.95; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.02); }
+  }
+
+  @keyframes shine {
+    0% { background-position: -200% 0; }
+    100% { background-position: 200% 0; }
+  }
+
+  @keyframes wave-subtle {
+    0% { transform: translate(-50%, -50%) rotate(0deg); }
+    50% { transform: translate(-50%, -50%) rotate(180deg) scale(1.08); }
+    100% { transform: translate(-50%, -50%) rotate(360deg); }
+  }
+
+  .animate-float {
+    animation: float-gentle 4s ease-in-out infinite;
+  }
+
+  .animate-pulse-slow {
+    animation: pulse-gentle 6s ease-in-out infinite;
+  }
+
+  .animate-wave-bg {
+    animation: wave-subtle 45s linear infinite;
+  }
+
+  /* Bubbly premium mesh background */
+  .bg-magical-playground {
+    background-color: #fbf6f0;
+    background-image: 
+      radial-gradient(at 12% 15%, rgba(254, 219, 196, 0.45) 0px, transparent 50%),
+      radial-gradient(at 88% 85%, rgba(220, 252, 231, 0.45) 0px, transparent 50%),
+      radial-gradient(at 50% 12%, rgba(254, 243, 199, 0.45) 0px, transparent 55%),
+      radial-gradient(at 10% 85%, rgba(255, 228, 230, 0.45) 0px, transparent 50%),
+      radial-gradient(at 90% 10%, rgba(224, 242, 254, 0.45) 0px, transparent 50%);
+    background-size: cover;
+  }
+
+  /* Elegant glassy blur panel */
+  .glass-card {
+    background: rgba(255, 255, 255, 0.88);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1.5px solid rgba(255, 255, 255, 0.6);
+  }
+
+  .glass-card-darker {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1.5px solid rgba(255, 237, 213, 0.45);
+  }
+
+  /* Shiny glossy finish gradient */
+  .glossy-glow {
+    background: linear-gradient(135deg, rgba(255,255,255,0.4) 0%, rgba(255,255,255,0) 50%, rgba(255,255,255,0.15) 100%);
+  }
+
+  /* Cute kid key shakes */
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    20%, 60% { transform: translateX(-6px); }
+    40%, 80% { transform: translateX(6px); }
+  }
+
+  .animate-shake {
+    animation: shake 0.4s ease-in-out;
+  }
+}
+
+/* Custom scrollbar to keep layout clean for kids */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(253, 186, 116, 0.35); /* Warm light amber */
+  border-radius: 99px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(253, 186, 116, 0.6);
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: #f7f6f4;
+  margin: 0;
+  padding: 0;
+}
+

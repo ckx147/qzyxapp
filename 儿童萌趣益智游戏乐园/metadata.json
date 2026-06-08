@@ -1,0 +1,6 @@
+{
+  "name": "儿童萌趣益智游戏乐园",
+  "description": "专为儿童设计的益智游戏合集，包含数字炸弹（带运动惩罚）、数字华容道、舒尔特专注力训练、经典五子棋，伴以每日趣味打卡、宠物喂食互动、成就勋章及个人档案成长系统。",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

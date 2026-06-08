@@ -1,0 +1,35 @@
+# Dependencies
+node_modules/
+
+# Build outputs
+dist/
+build/
+.vite/
+
+# Environment and secrets
+.env
+.env.*
+!.env.example
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Obsidian volatile workspace state
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+AI知识库/.obsidian/workspace.json
+AI知识库/.obsidian/workspace-mobile.json
+
+# Temporary backups
+*.tmp
+*.bak
+*.old

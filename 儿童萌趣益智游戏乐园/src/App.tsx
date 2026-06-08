@@ -1,0 +1,780 @@
+/**
+ * @license
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+import React, { useState, useEffect } from 'react';
+import { motion, AnimatePresence } from 'motion/react';
+import { 
+  Home, 
+  Gamepad2, 
+  Trophy, 
+  User, 
+  Sparkles, 
+  Wifi, 
+  Battery, 
+  Tv, 
+  X, 
+  CheckCircle, 
+  Compass, 
+  Award,
+  Zap,
+  Info,
+  ChevronRight
+} from 'lucide-react';
+import { UserProfile, Achievement, CheckInState, LeaderboardItem } from './types';
+import { 
+  getGameState, 
+  saveGameState, 
+  checkAchievements, 
+  AVATARS, 
+  DAILY_REWARDS 
+} from './utils/gameHelpers';
+import { getAchievementTierConfig } from './utils/tierConfig';
+import { soundSynth } from './utils/audio';
+
+// Subcomponents
+import { CompanionInteractions } from './components/CompanionInteractions';
+import { DailyCheckIn } from './components/DailyCheckIn';
+import { BombGame } from './components/BombGame';
+import { KlotskiGame } from './components/KlotskiGame';
+import { SchulteGame } from './components/SchulteGame';
+import { GomokuGame } from './components/GomokuGame';
+import { ProfileView } from './components/ProfileView';
+import { AchievementsView } from './components/AchievementsView';
+import { UserAvatar } from './components/UserAvatar';
+
+export default function App() {
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [achievements, setAchievements] = useState<Achievement[]>([]);
+  const [checkIn, setCheckIn] = useState<CheckInState | null>(null);
+  const [leaderboard, setLeaderboard] = useState<LeaderboardItem[]>([]);
+  
+  // Navigation tabs
+  const [activeTab, setActiveTab] = useState<'home' | 'games' | 'leaderboard' | 'profile'>('home');
+  const [activeGame, setActiveGame] = useState<'bomb' | 'klotski' | 'schulte' | 'gomoku' | null>(null);
+
+  // Global notifications state
+  const [notification, setNotification] = useState<{ text: string; icon: string; id: number } | null>(null);
+  const [unlockedAchievementAlert, setUnlockedAchievementAlert] = useState<Achievement | null>(null);
+  const [muted, setMuted] = useState(soundSynth.getMuteState());
+
+  // Initialize Game state
+  useEffect(() => {
+    const state = getGameState();
+    setProfile(state.profile);
+    setAchievements(state.achievements);
+    setCheckIn(state.checkIn);
+    setLeaderboard(state.leaderboard);
+  }, []);
+
+  // Web Audio API BGM auto-activation upon user's first raw interaction (browser gesture bypass)
+  useEffect(() => {
+    const startBgmOnGesture = () => {
+      soundSynth.startBgm();
+      window.removeEventListener('click', startBgmOnGesture);
+      window.removeEventListener('touchstart', startBgmOnGesture);
+    };
+    window.addEventListener('click', startBgmOnGesture);
+    window.addEventListener('touchstart', startBgmOnGesture);
+    return () => {
+      window.removeEventListener('click', startBgmOnGesture);
+      window.removeEventListener('touchstart', startBgmOnGesture);
+    };
+  }, []);
+
+  // Save state on any profile or achievement write
+  useEffect(() => {
+    if (profile && checkIn) {
+      saveGameState(profile, achievements, checkIn, leaderboard);
+    }
+  }, [profile, achievements, checkIn, leaderboard]);
+
+  // Constantly check if any achievement is unlocked upon stats progress
+  useEffect(() => {
+    if (!profile || achievements.length === 0 || !checkIn) return;
+    const { updatedAchievements, newlyUnlocked } = checkAchievements(profile, achievements, checkIn);
+    
+    if (newlyUnlocked.length > 0) {
+      setAchievements(updatedAchievements);
+      // Popup first newly unlocked badge
+      setUnlockedAchievementAlert(newlyUnlocked[0]);
+      soundSynth.playWin();
+      
+      // Fire visual reward notification
+      const tierLvl = newlyUnlocked[0].tier || 1;
+      const tierConf = getAchievementTierConfig(newlyUnlocked[0].id, tierLvl);
+      triggerNotification(`恭喜达成 ${tierConf.badgeEmoji} 【${newlyUnlocked[0].title}】${tierConf.tierName} 目标！可前往勋章墙领取晋级好礼！🎁`, 'Award');
+    }
+  }, [profile?.records, profile?.feedHappiness, checkIn?.streak, checkIn?.unlockedItems?.length]);
+
+  const triggerNotification = (text: string, icon: string) => {
+    setNotification({ text, icon, id: Date.now() });
+  };
+
+  // Clear toast timeout
+  useEffect(() => {
+    if (notification) {
+      const timer = setTimeout(() => {
+        setNotification(null);
+      }, 4000);
+      return () => clearTimeout(timer);
+    }
+  }, [notification]);
+
+  // Points handler
+  const handlePointsChange = (amount: number, reason: string) => {
+    if (!profile) return;
+    if (amount > 0) {
+      soundSynth.playScore();
+    } else if (amount < 0) {
+      soundSynth.playWarning();
+    }
+    setProfile(prev => {
+      if (!prev) return prev;
+      const newPoints = Math.max(0, prev.points + amount);
+      triggerNotification(`${amount > 0 ? '🎉 +' : '🩹 '}${amount} 星星积分 (${reason})`, 'Sparkles');
+      return {
+        ...prev,
+        points: newPoints
+      };
+    });
+  };
+
+  // Claim achievement rewards and advance tiers
+  const handleClaimAchievementReward = (achId: string) => {
+    if (!profile) return;
+    
+    const targetAchIndex = achievements.findIndex(ach => ach.id === achId);
+    if (targetAchIndex === -1) return;
+    const ach = achievements[targetAchIndex];
+    
+    // Can only claim if unlocked and not claimed yet
+    if (!ach.unlocked || ach.rewardsClaimed) return;
+    
+    const currentTier = ach.tier || 1;
+    const config = getAchievementTierConfig(achId, currentTier);
+    
+    // 1. Grant points
+    const bonusPoints = config.pointsReward;
+    
+    // 2. Grant food snacks to inventory
+    const food = config.foodReward;
+    
+    setProfile(prev => {
+      if (!prev) return prev;
+      const nextInv = { ...prev.inventory };
+      nextInv[food.name] = (nextInv[food.name] || 0) + food.count;
+      return {
+        ...prev,
+        points: prev.points + bonusPoints,
+        inventory: nextInv
+      };
+    });
+    
+    // 3. Reset unlocked to false & increment tier level unless max level is reached
+    const isMaxTier = currentTier === 7;
+    const nextTier = Math.min(7, currentTier + 1);
+    const nextConfig = getAchievementTierConfig(achId, nextTier);
+    
+    const updatedAchievements = achievements.map((a, idx) => {
+      if (idx === targetAchIndex) {
+        return {
+          ...a,
+          tier: isMaxTier ? currentTier : nextTier,
+          unlocked: isMaxTier ? true : false,
+          rewardsClaimed: isMaxTier ? true : false,
+          targetValue: isMaxTier ? a.targetValue : nextConfig.targetValue,
+          unlockedAt: isMaxTier ? a.unlockedAt : undefined
+        };
+      }
+      return a;
+    });
+    
+    setAchievements(updatedAchievements);
+    
+    triggerNotification(`🏅 已领取${config.tierName}【${ach.title}】进阶宝盒：获得星星×${bonusPoints}！恐龙零食袋中塞入了 ${food.char} ${food.name}×${food.count}！🍬🍡`, 'Award');
+  };
+
+  if (!profile || !checkIn) {
+    return (
+      <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 font-sans">
+        <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mb-2" />
+        <p className="font-extrabold text-sm">正在加载儿童萌趣乐园...</p>
+      </div>
+    );
+  }
+
+  // Active avatar object
+  const activeAvatarObj = AVATARS.find(a => a.id === profile.avatarId) || AVATARS[0];
+
+  return (
+    <div className="min-h-screen bg-magical-playground py-4 sm:py-8 px-2 flex flex-col items-center justify-center font-sans antialiased text-slate-800 selection:bg-rose-200">
+      
+      {/* Decorative desktop decorations - Premium Glassmorphic Bento Cells */}
+      <div className="hidden lg:block fixed left-10 top-10 text-center max-w-xs text-slate-500 font-medium glass-card p-6 rounded-[32px] shadow-lg border border-white/60 animate-float">
+        <h1 className="text-xl font-black bg-gradient-to-r from-[#FF6B6B] to-orange-500 bg-clip-text text-transparent mb-2">好奇小熊 🐻</h1>
+        <p className="text-xs leading-relaxed text-slate-600 font-semibold">
+          双语智能逻辑训练空间，引导孩子在趣味拆雷、滑动数字、专注追踪与美味五子棋的对垒中激活全方位感知力！🚀
+        </p>
+      </div>
+
+      <div className="hidden lg:block fixed right-10 bottom-10 glass-card p-6 rounded-[32px] shadow-lg max-w-xs border border-white/60 animate-float [animation-delay:1.5s]">
+        <h5 className="font-black text-[#FF9F1C] text-sm flex items-center gap-1.5 mb-2">
+          <Sparkles className="text-amber-500 fill-amber-200" size={16} /> 积分魔法盒：
+        </h5>
+        <p className="text-xs text-slate-600 leading-relaxed font-semibold">
+          每日打卡可得 20 ~ 120 积分和可爱糖果！在【零食商店】兑换糖果、苹果并喂食陪伴恐龙【小布】增加好感度，能开启神秘探索成就哦！🎁🦖
+        </p>
+      </div>
+
+      {/* 4. Elegant Kid-Tablet Simulator Frame */}
+      <div 
+        className="relative w-full max-w-[430px] h-[860px] max-h-screen sm:max-h-[860px] bg-gradient-to-b from-[#FFFBF7] to-[#FFF9F2] rounded-none sm:rounded-[54px] shadow-[0_24px_70px_rgba(253,186,116,0.22)] border-0 sm:border-[14px] border-[#FFE5CC] flex flex-col overflow-hidden pb-safe transition-all duration-300 hover:shadow-[0_24px_85px_rgba(253,186,116,0.30)]"
+        id="kids-applet-mobile-canvas-frame"
+      >
+        {/* Simulated top notch & device status bar */}
+        <div className="bg-[#FFE5CC] h-7 px-6 flex items-center justify-between text-[11px] font-black select-none shrink-0 rounded-b-none relative">
+          <span className="font-sans text-[#92400E]">12:08 🍟</span>
+          {/* Simulated speaker island notch */}
+          <div className="h-3 w-20 bg-white/40 absolute top-0 left-1/2 -translate-x-1/2 rounded-b-lg flex items-center justify-center">
+            <div className="w-6 h-0.5 bg-white/60 rounded-full" />
+          </div>
+          <div className="flex items-center gap-1 text-[10px] text-[#92400E]">
+            <span className="bg-[#10B981] text-white font-extrabold px-1.5 py-0.5 rounded-full text-[8px] scale-90 leading-none">在线</span>
+            <Wifi size={11} className="text-[#92400E]" />
+            <Battery size={13} className="text-[#92400E]" />
+          </div>
+        </div>
+
+        {/* Mobile Header Banner - Immersive Cute UI Style */}
+        <div className="bg-white/95 backdrop-blur-md px-4 py-3 text-slate-800 flex items-center justify-between border-b border-[#FFE0C2]/80 shadow-3xs select-none shrink-0" id="mobile-home-header">
+          {activeGame ? (
+            <button 
+              onClick={() => {
+                soundSynth.playClick();
+                setActiveGame(null);
+              }}
+              className="bg-[#FFF1F2] hover:bg-[#FFE4E6] active:translate-y-0.5 border border-[#FFD1DC] text-[#FF6B6B] transition-all rounded-xl px-3 py-1.5 text-xs font-black shadow-3xs flex items-center gap-1 cursor-pointer"
+              id="back-to-hub-button"
+            >
+              <span>🏠</span> 返回
+            </button>
+          ) : (
+            <div 
+              className="flex items-center gap-2 bg-[#FFF9F2] p-1.5 pr-3 rounded-full shadow-sm border border-[#FFE0C2] cursor-pointer hover:bg-white transition-all active:scale-95" 
+              onClick={() => {
+                soundSynth.playClick();
+                setActiveTab('profile');
+              }}
+            >
+              <UserAvatar id={profile.avatarId} className="w-8 h-8" textClassName="text-base" />
+              <div className="text-left leading-none">
+                <span className="text-[9px] text-[#FF9F1C] font-black block">小勇士</span>
+                <span className="text-xs font-bold text-slate-700 truncate max-w-[80px] block mt-0.5">{profile.nickname}</span>
+              </div>
+            </div>
+          )}
+
+          {/* Large dynamic Title logo */}
+          <div className="text-center flex-1 mx-2">
+            <h2 className="font-extrabold text-sm text-[#FF6B6B] tracking-tight leading-none">
+              {activeGame === 'bomb' ? '💣 数字炸弹' :
+               activeGame === 'klotski' ? '🧩 数字华容道' :
+               activeGame === 'schulte' ? '⚡ 舒尔特训练' :
+               activeGame === 'gomoku' ? '🍇 甜心五子棋' :
+               '好奇小熊'}
+            </h2>
+            {!activeGame && <span className="text-[8px] text-slate-400 font-bold block mt-1">Lv.8 益智馆</span>}
+          </div>
+
+          {/* User Score coin label and Sound toggle */}
+          <div className="flex items-center gap-1.5 shrink-0">
+            <button
+              onClick={() => {
+                const nextMute = soundSynth.toggleMute();
+                setMuted(nextMute);
+                if (!nextMute) {
+                  soundSynth.playSuccess();
+                } else {
+                  // Subtle tap response
+                }
+              }}
+              className="bg-white hover:bg-slate-50 border border-slate-200 w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-3xs cursor-pointer active:scale-90 transition-all font-sans"
+              title={muted ? "开启声音" : "关闭声音"}
+              id="sound-mute-toggle-btn"
+            >
+              {muted ? "🔇" : "🔊"}
+            </button>
+            <div className="bg-white px-2.5 py-1.5 rounded-full shadow-sm border-b-2 border-slate-200 flex items-center gap-1 text-xs">
+              <span className="text-sm select-none">✨</span>
+              <span className="font-black text-[#FF9F1C] tracking-tighter text-sm font-sans">{profile.points}</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Dynamic active screens rendering based on context */}
+        <div className="flex-1 overflow-y-auto bg-[#FFF9F2] p-4 relative" id="mobile-main-canvas-content">
+          
+          {/* TOAST Notifications alerts */}
+          <AnimatePresence>
+            {notification && (
+              <motion.div
+                initial={{ opacity: 0, y: -40, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                exit={{ opacity: 0, y: -20, scale: 0.9 }}
+                className="absolute top-2 left-4 right-4 z-40 bg-indigo-900/90 text-white text-xs font-bold p-3 rounded-2xl shadow-xl flex items-center justify-between border-2 border-indigo-500 backdrop-blur-xs"
+                id="toast-notification-banner"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-xl">🌟</span>
+                  <p className="text-left font-extrabold leading-snug">{notification.text}</p>
+                </div>
+                <button onClick={() => setNotification(null)} className="text-slate-300 hover:text-white shrink-0 ml-1.5">
+                  <X size={14} />
+                </button>
+              </motion.div>
+            )}
+          </AnimatePresence>
+
+          {/* MAIN ACTIVE VIEW ROUTER */}
+          {activeGame ? (
+            <div className="space-y-4" id="child-active-game-box">
+              {activeGame === 'bomb' && (
+                <BombGame 
+                  profile={profile} 
+                  achievements={achievements} 
+                  setProfile={setProfile}
+                  setAchievements={setAchievements}
+                  onPointsChange={handlePointsChange}
+                  onNotification={triggerNotification}
+                />
+              )}
+              {activeGame === 'klotski' && (
+                <KlotskiGame 
+                  profile={profile} 
+                  achievements={achievements} 
+                  setProfile={setProfile}
+                  setAchievements={setAchievements}
+                  onPointsChange={handlePointsChange}
+                  onNotification={triggerNotification}
+                />
+              )}
+              {activeGame === 'schulte' && (
+                <SchulteGame 
+                  profile={profile} 
+                  achievements={achievements} 
+                  setProfile={setProfile}
+                  setAchievements={setAchievements}
+                  onPointsChange={handlePointsChange}
+                  onNotification={triggerNotification}
+                />
+              )}
+              {activeGame === 'gomoku' && (
+                <GomokuGame 
+                  profile={profile} 
+                  achievements={achievements} 
+                  setProfile={setProfile}
+                  setAchievements={setAchievements}
+                  onPointsChange={handlePointsChange}
+                  onNotification={triggerNotification}
+                />
+              )}
+            </div>
+          ) : (
+            <div className="space-y-4">
+              
+              {/* Tab 1: Home Lobby (Mascot & Sign-in card) */}
+              {activeTab === 'home' && (
+                <div className="space-y-4" id="lobby-view-tab">
+                  {/* Banner greeting card */}
+                  <div className="bg-gradient-to-r from-amber-400 to-orange-400 text-white p-4 rounded-3xl relative overflow-hidden shadow-xs text-left">
+                    <span className="absolute right-[-10px] bottom-[-15px] text-7xl opacity-20 rotate-12">🎨</span>
+                    <h3 className="font-extrabold text-base mb-1">欢迎回来，聪明小侦探！🕵️</h3>
+                    <p className="text-[10px] text-amber-50 leading-relaxed font-bold">
+                      今天小布为你准备了丰盛的视觉方块派对和五子棋大战！赶快签到解锁魔法棒吧。
+                    </p>
+                  </div>
+
+                  {/* Character Interaction Module */}
+                  <CompanionInteractions 
+                    profile={profile} 
+                    achievements={achievements}
+                    setProfile={setProfile}
+                    setAchievements={setAchievements}
+                    onPointsChange={handlePointsChange}
+                    onNotification={triggerNotification}
+                  />
+
+                  {/* Daily Sign In Component */}
+                  <DailyCheckIn 
+                    profile={profile}
+                    checkIn={checkIn}
+                    achievements={achievements}
+                    setProfile={setProfile}
+                    setCheckIn={setCheckIn}
+                    setAchievements={setAchievements}
+                    onPointsChange={handlePointsChange}
+                    onNotification={triggerNotification}
+                  />
+                </div>
+              )}
+
+              {/* Tab 2: Games Hub Selection */}
+              {activeTab === 'games' && (
+                <div className="space-y-5 text-left" id="games-selection-tab">
+                  <div className="bg-white p-4 rounded-3xl border-b-4 border-[#FFE0C2] flex items-center justify-between shadow-md">
+                    <div className="flex items-center gap-3">
+                      <span className="text-3xl animate-bounce">🎖️</span>
+                      <div>
+                        <p className="text-xs font-black text-slate-700">今天你要挑战哪个法力关卡？</p>
+                        <p className="text-[10px] text-slate-400 font-bold mt-0.5">完成挑战收集星星，购买金币糖果投喂小布！</p>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-4" id="hub-games-grid-layout">
+                    {/* Game Item 1: Number Bomb (Pink Theme #FF8E9E) */}
+                    <div 
+                      onClick={() => setActiveGame('bomb')}
+                      className="bg-white rounded-[28px] p-5 shadow-xl border-b-8 border-[#FF8E9E] flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0.5 active:border-b-2 cursor-pointer"
+                      id="launch-bomb-game-card"
+                    >
+                      <div>
+                        <div className="w-12 h-12 bg-[#FFF1F2] border-2 border-[#FFE4E6] rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner">
+                          💣
+                        </div>
+                        <h4 className="font-black text-sm text-slate-700">数字炸弹对决</h4>
+                        <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                          学动物跳跃惩罚！与笨萌小布轮流避开隐藏的爆破数。
+                        </p>
+                      </div>
+                      <div className="mt-5 flex items-center justify-between">
+                        <span className="text-[9px] bg-[#FFF1F2] text-[#F43F5E] font-black px-2.5 py-1 rounded-full border border-[#FFF1F2]">
+                          +10~50 ⭐/局
+                        </span>
+                        <ChevronRight size={14} className="text-[#FF8E9E]" />
+                      </div>
+                    </div>
+
+                    {/* Game Item 2: Klotski Slider (Blue Theme #7AD4FF) */}
+                    <div 
+                      onClick={() => setActiveGame('klotski')}
+                      className="bg-white rounded-[28px] p-5 shadow-xl border-b-8 border-[#7AD4FF] flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0.5 active:border-b-2 cursor-pointer"
+                      id="launch-klotski-game-card"
+                    >
+                      <div>
+                        <div className="w-12 h-12 bg-[#F0F9FF] border-2 border-[#E0F2FE] rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner">
+                          🧩
+                        </div>
+                        <h4 className="font-black text-sm text-slate-700">数字华容道</h4>
+                        <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                          木质九宫温润拼图！手脑组合让无序的板块完美归航。
+                        </p>
+                      </div>
+                      <div className="mt-5 flex items-center justify-between">
+                        <span className="text-[9px] bg-[#F0F9FF] text-[#0284C7] font-black px-2.5 py-1 rounded-full border border-[#E0F2FE]">
+                          +80~150 ⭐/局
+                        </span>
+                        <ChevronRight size={14} className="text-[#7AD4FF]" />
+                      </div>
+                    </div>
+
+                    {/* Game Item 3: Schulte Table (Purple Theme #A78BFF) */}
+                    <div 
+                      onClick={() => setActiveGame('schulte')}
+                      className="bg-white rounded-[28px] p-5 shadow-xl border-b-8 border-[#A78BFF] flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0.5 active:border-b-2 cursor-pointer"
+                      id="launch-schulte-game-card"
+                    >
+                      <div>
+                        <div className="w-12 h-12 bg-[#F5F3FF] border-2 border-[#EDE9FE] rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner">
+                          ⚡
+                        </div>
+                        <h4 className="font-black text-sm text-slate-700">舒尔特专注力</h4>
+                        <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                          一闪一闪亮晶晶！按序狂点追击数字，锻炼全域余光搜寻。
+                        </p>
+                      </div>
+                      <div className="mt-5 flex items-center justify-between">
+                        <span className="text-[9px] bg-[#F5F3FF] text-[#6D28D9] font-black px-2.5 py-1 rounded-full border border-[#EDE9FE]">
+                          +60~120 ⭐/局
+                        </span>
+                        <ChevronRight size={14} className="text-[#A78BFF]" />
+                      </div>
+                    </div>
+
+                    {/* Game Item 4: Gomoku Cherry (Green Theme #4ADE80) */}
+                    <div 
+                      onClick={() => setActiveGame('gomoku')}
+                      className="bg-white rounded-[28px] p-5 shadow-xl border-b-8 border-[#4ADE80] flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0.5 active:border-b-2 cursor-pointer"
+                      id="launch-gomoku-game-card"
+                    >
+                      <div>
+                        <div className="w-12 h-12 bg-[#F0FDF4] border-2 border-[#DCFCE7] rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner">
+                          🍒
+                        </div>
+                        <h4 className="font-black text-sm text-slate-700">甜心五子棋</h4>
+                        <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
+                          草莓和蓝莓开花！横竖连通五个美味水果，战胜智能小布。
+                        </p>
+                      </div>
+                      <div className="mt-5 flex items-center justify-between">
+                        <span className="text-[9px] bg-[#F0FDF4] text-[#15803D] font-black px-2.5 py-1 rounded-full border border-[#DCFCE7]">
+                          +100 ⭐/胜局
+                        </span>
+                        <ChevronRight size={14} className="text-[#4ADE80]" />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 3: Leaderboard panel */}
+              {activeTab === 'leaderboard' && (
+                <div className="space-y-4 text-left animate-fade-in" id="leaderboard-view-tab">
+                  {/* Header box */}
+                  <div className="bg-amber-50 rounded-[28px] p-4 border-b-4 border-[#FFE0C2] flex items-center justify-between shadow-md relative overflow-hidden">
+                    <span className="absolute right-[-10px] bottom-[-15px] text-6xl opacity-15">🏆</span>
+                    <div>
+                      <h3 className="font-black text-sm text-slate-700 mb-0.5">全区大脑星星王座榜</h3>
+                      <p className="text-[10px] text-slate-500 font-bold leading-relaxed">
+                        跟身边其他可爱的小探险家一起比拼脑力星星，努力解锁更高的大布喂食等级吧！
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Leader List Card */}
+                  <div className="bg-white rounded-[32px] border-b-8 border-[#7AD4FF] p-4 space-y-2.5 shadow-xl">
+                    {leaderboard.map((item, idx) => {
+                      const rank = idx + 1;
+                      const avatarDetail = AVATARS.find(a => a.id === item.avatarId) || AVATARS[0];
+                      const isMe = item.id === profile.id;
+
+                      return (
+                        <div 
+                          key={item.id}
+                          className={`flex items-center justify-between p-3 rounded-2xl transition-all border border-b-4 ${
+                            isMe 
+                              ? 'bg-amber-50 border-amber-300 text-slate-700 shadow-sm scale-102' 
+                              : 'bg-slate-50 border-slate-200'
+                          }`}
+                          id={`leaderboard-row-${rank}`}
+                        >
+                          <div className="flex items-center gap-3">
+                            {/* Rank Badge */}
+                            <span className="w-6 text-center font-black font-sans text-xs">
+                              {rank === 1 ? '🥇' : rank === 2 ? '🥈' : rank === 3 ? '🥉' : rank}
+                            </span>
+
+                            {/* Avatar */}
+                            <UserAvatar id={item.avatarId} className="w-9 h-9" textClassName="text-xl" />
+
+                            {/* Nickname */}
+                            <div className="text-left">
+                              <h4 className="text-xs font-black text-slate-700 flex items-center gap-1.5 leading-tight">
+                                {item.nickname}
+                                {isMe && (
+                                  <span className="bg-rose-500 text-white font-black text-[7px] px-1.5 py-0.5 rounded-full inline-block leading-none uppercase">
+                                    我 / 本尊
+                                  </span>
+                                )}
+                              </h4>
+                              <p className="text-[8px] text-slate-400 font-bold">小小探险家</p>
+                            </div>
+                          </div>
+
+                          {/* Points sum label */}
+                          <div className="bg-white py-1 px-3 rounded-full border border-b-2 border-slate-200 text-xs font-black text-slate-600 font-mono shadow-3xs">
+                            ⭐ {item.points}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
+
+              {/* Tab 4: Profile View and Achievements */}
+              {activeTab === 'profile' && (
+                <div className="space-y-4" id="profile-detailed-tab">
+                  {/* Detailed profile and play metrics summary */}
+                  <ProfileView 
+                    profile={profile} 
+                    leaderboard={leaderboard} 
+                    setProfile={setProfile} 
+                    onNotification={triggerNotification}
+                  />
+
+                  {/* Badges system overview list */}
+                  <AchievementsView 
+                    achievements={achievements} 
+                    onClaimReward={handleClaimAchievementReward}
+                  />
+                </div>
+              )}
+
+            </div>
+          )}
+        </div>
+
+        {/* Global Bottom Navigation Tab Bar */}
+        <div className="bg-white/95 backdrop-blur-md border-t border-[#FFE0C2]/80 py-2.5 flex justify-around select-none shrink-0 shadow-[0_-5px_20px_rgba(253,186,116,0.06)]" id="mobile-navigation-footer">
+          <button 
+            onClick={() => {
+              soundSynth.playClick();
+              setActiveTab('home');
+              setActiveGame(null);
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-4 transition-all duration-200 relative ${
+              activeTab === 'home' && !activeGame ? 'text-[#FF6B6B] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600 font-medium'
+            }`}
+            id="tab-btn-home"
+          >
+            <Home size={20} className={activeTab === 'home' && !activeGame ? 'text-[#FF6B6B] fill-[#FFE4E6]' : ''} />
+            <span className="text-[10px] uppercase tracking-wider mt-1">快乐岛</span>
+            {activeTab === 'home' && !activeGame && (
+              <span className="absolute bottom-[-10px] w-6 h-1 bg-[#FF6B6B] rounded-full" />
+            )}
+          </button>
+
+          <button 
+            onClick={() => {
+              soundSynth.playClick();
+              setActiveTab('games');
+              setActiveGame(null);
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-4 transition-all duration-200 relative ${
+              activeTab === 'games' || activeGame ? 'text-[#FF6B6B] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600 font-medium'
+            }`}
+            id="tab-btn-games"
+          >
+            <Gamepad2 size={20} className={activeTab === 'games' || activeGame ? 'text-[#FF6B6B] fill-[#FFE4E6]' : ''} />
+            <span className="text-[10px] uppercase tracking-wider mt-1">游戏堡</span>
+            {(activeTab === 'games' || activeGame) && (
+              <span className="absolute bottom-[-10px] w-6 h-1 bg-[#FF6B6B] rounded-full" />
+            )}
+          </button>
+
+          <button 
+            onClick={() => {
+              soundSynth.playClick();
+              setActiveTab('leaderboard');
+              setActiveGame(null);
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-4 transition-all duration-200 relative ${
+              activeTab === 'leaderboard' && !activeGame ? 'text-[#FF6B6B] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600 font-medium'
+            }`}
+            id="tab-btn-leaderboard"
+          >
+            <Trophy size={20} className={activeTab === 'leaderboard' && !activeGame ? 'text-[#FF6B6B] fill-[#FFE4E6] animate-pulse' : ''} />
+            <span className="text-[10px] uppercase tracking-wider mt-1">英雄碑</span>
+            {activeTab === 'leaderboard' && !activeGame && (
+              <span className="absolute bottom-[-10px] w-6 h-1 bg-[#FF6B6B] rounded-full" />
+            )}
+          </button>
+
+          <button 
+            onClick={() => {
+              soundSynth.playClick();
+              setActiveTab('profile');
+              setActiveGame(null);
+            }}
+            className={`flex flex-col items-center justify-center py-1 px-4 transition-all duration-200 relative ${
+              activeTab === 'profile' && !activeGame ? 'text-[#FF6B6B] scale-105 font-extrabold' : 'text-slate-400 hover:text-slate-600 font-medium'
+            }`}
+            id="tab-btn-profile"
+          >
+            <User size={20} className={activeTab === 'profile' && !activeGame ? 'text-[#FF6B6B] fill-[#FFE4E6]' : ''} />
+            <span className="text-[10px] uppercase tracking-wider mt-1">荣誉墙</span>
+            {activeTab === 'profile' && !activeGame && (
+              <span className="absolute bottom-[-10px] w-6 h-1 bg-[#FF6B6B] rounded-full" />
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Achievement Unlocked Big Popover Modal Overlay */}
+      <AnimatePresence>
+        {unlockedAchievementAlert && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 pointer-events-auto"
+            id="achievement-alert-root"
+          >
+            <motion.div
+              initial={{ scale: 0.7, y: 100 }}
+              animate={{ scale: 1, y: 0 }}
+              exit={{ scale: 0.7, y: 100 }}
+              className="bg-white border-6 border-amber-400 rounded-[36px] p-6 max-w-sm w-full text-center relative shadow-ex"
+            >
+              {/* Confetti drops elements */}
+              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[30px]">
+                {Array.from({ length: 12 }).map((_, idx) => (
+                  <span 
+                    key={idx}
+                    className="absolute text-xl select-none animate-bounce"
+                    style={{
+                      left: `${Math.random() * 80 + 10}%`,
+                      top: `${Math.random() * 50 + 10}%`,
+                      animationDelay: `${idx * 0.2}s`
+                    }}
+                  >
+                    {['✨','🍬','🎉','👑','⭐'][idx % 5]}
+                  </span>
+                ))}
+              </div>
+
+              <div className="w-20 h-20 bg-gradient-to-tr from-amber-400 to-yellow-500 rounded-full flex items-center justify-center text-4xl border-4 border-white shadow-lg mx-auto mb-4 animate-bounce">
+                {(() => {
+                  const tL = unlockedAchievementAlert.tier || 1;
+                  const tC = getAchievementTierConfig(unlockedAchievementAlert.id, tL);
+                  return tC.badgeEmoji;
+                })()}
+              </div>
+
+              <h3 className="text-xl font-black text-slate-800">达成阶段性荣誉！</h3>
+              <p className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2">你真的越来越聪明啦！</p>
+
+              {(() => {
+                const tL = unlockedAchievementAlert.tier || 1;
+                const tC = getAchievementTierConfig(unlockedAchievementAlert.id, tL);
+                return (
+                  <>
+                    <div className="bg-amber-50/70 border-2 border-amber-200/50 rounded-2xl p-4 my-3">
+                      <span className="inline-block bg-amber-400 text-white font-extrabold text-[10px] px-3 py-1 rounded-full mb-1">
+                        【{tC.tierName}】荣誉达成
+                      </span>
+                      <p className="font-extrabold text-[#9c5900] text-sm mt-1">{unlockedAchievementAlert.title}</p>
+                      <p className="text-[10px] text-slate-500 font-semibold mt-1 leading-relaxed">
+                        功名进阶成功！累计获得了智慧承认，继续积累刷新记录，就能一直升到【王者级】顶峰哦！💥
+                      </p>
+                    </div>
+
+                    <div className="bg-gradient-to-r from-indigo-50 to-pink-50 border border-indigo-100/60 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 mb-4 text-[10px] font-black text-indigo-900 leading-none">
+                      <span className="text-slate-400 font-bold block">🎁 待领取的进阶大礼袋</span>
+                      <div className="flex items-center gap-1.5 mt-0.5 text-rose-600 font-black">
+                        <span>⭐+{tC.pointsReward} 星积分</span>
+                        <span>+</span>
+                        <span>{tC.foodReward.char}{tC.foodReward.name}×{tC.foodReward.count}</span>
+                      </div>
+                      <span className="text-[8px] text-indigo-400 font-bold mt-1">(可前往 👤 荣誉墙 手动开启此晋级宝池)</span>
+                    </div>
+                  </>
+                );
+              })()}
+
+              <button
+                onClick={() => setUnlockedAchievementAlert(null)}
+                className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-black py-3.5 px-6 rounded-2xl shadow-md cursor-pointer transition-all active:scale-95 text-xs"
+              >
+                我知道啦，开启新旅程！
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </div>
+  );
+}
