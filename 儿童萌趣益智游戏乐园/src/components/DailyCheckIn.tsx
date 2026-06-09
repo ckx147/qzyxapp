@@ -7,7 +7,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Sparkles, Calendar, CheckCircle2, Gift } from 'lucide-react';
 import { UserProfile, CheckInState, Achievement } from '../types';
-import { DAILY_REWARDS, saveGameState, checkAchievements } from '../utils/gameHelpers';
+import { DAILY_REWARDS, checkAchievements } from '../utils/gameHelpers';
 
 interface CheckInProps {
   profile: UserProfile;

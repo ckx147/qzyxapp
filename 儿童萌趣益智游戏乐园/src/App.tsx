@@ -27,12 +27,11 @@ import {
 } from 'lucide-react';
 import { UserProfile, Achievement, CheckInState, LeaderboardItem } from './types';
 import { 
-  getGameState, 
-  saveGameState, 
   checkAchievements, 
   AVATARS, 
   DAILY_REWARDS 
 } from './utils/gameHelpers';
+import { loadGameState, saveGameState } from './utils/gameDataService';
 import { getAchievementTierConfig } from './utils/tierConfig';
 import { soundSynth } from './utils/audio';
 
@@ -66,7 +65,7 @@ export default function App() {
 
   // Initialize Game state
   useEffect(() => {
-    const state = getGameState();
+    const state = loadGameState();
     setProfile(state.profile);
     setAchievements(state.achievements);
     setCheckIn(state.checkIn);
@@ -91,7 +90,10 @@ export default function App() {
   // Save state on any profile or achievement write
   useEffect(() => {
     if (profile && checkIn) {
-      saveGameState(profile, achievements, checkIn, leaderboard);
+      const savedState = saveGameState(profile, achievements, checkIn, leaderboard);
+      if (JSON.stringify(savedState.leaderboard) !== JSON.stringify(leaderboard)) {
+        setLeaderboard(savedState.leaderboard);
+      }
     }
   }, [profile, achievements, checkIn, leaderboard]);
 

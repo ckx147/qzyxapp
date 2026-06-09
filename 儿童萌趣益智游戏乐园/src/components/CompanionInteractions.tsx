@@ -7,7 +7,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { Heart, Sparkles, ShoppingBag, Gift } from 'lucide-react';
 import { UserProfile, Achievement } from '../types';
-import { FOOD_ITEMS, saveGameState, checkAchievements } from '../utils/gameHelpers';
+import { FOOD_ITEMS, checkAchievements } from '../utils/gameHelpers';
 
 interface CompanionProps {
   profile: UserProfile;

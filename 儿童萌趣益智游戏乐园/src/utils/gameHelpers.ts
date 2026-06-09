@@ -3,9 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { UserProfile, Achievement, LeaderboardItem, GameRecord, CheckInState } from '../types';
+import { UserProfile, Achievement, GameRecord, CheckInState } from '../types';
 import { getAchievementTierConfig } from './tierConfig';
-import { readStorageJson, storageKeys, writeStorageJson } from './gameStorage';
 
 export const AVATARS = [
   { id: 'avatar_dino', char: '🦖', name: '萌酷霸王龙', color: 'bg-emerald-100 border-emerald-300' },
@@ -169,14 +168,6 @@ export const INITIAL_ACHIEVEMENTS: Achievement[] = [
   }
 ];
 
-export const INITIAL_LEADERBOARD: LeaderboardItem[] = [
-  { id: 'bot_1', nickname: '乐乐兔', avatarId: 'avatar_rabbit', points: 920 },
-  { id: 'bot_2', nickname: '聪聪猴', avatarId: 'avatar_fox', points: 780 },
-  { id: 'bot_3', nickname: '胖胖熊猫', avatarId: 'avatar_panda', points: 650 },
-  { id: 'bot_4', nickname: '萌萌小星人', avatarId: 'avatar_robot', points: 480 },
-  { id: 'bot_5', nickname: '皮皮狐', avatarId: 'avatar_fox', points: 300 },
-];
-
 export const INITIAL_CHECKIN_STATE: CheckInState = {
   lastCheckInDate: null,
   streak: 0,
@@ -194,79 +185,6 @@ export const DAILY_REWARDS = [
   { day: 6, points: 80, item: '超级糖果豪华篮', count: 2, foodId: 'candy', icon: '🍬' },
   { day: 7, points: 120, item: '终极彩虹马卡龙', count: 2, foodId: 'donut', icon: '🍩' },
 ];
-
-export function getGameState() {
-  let profile = readStorageJson<UserProfile>(storageKeys.profile, INITIAL_PROFILE);
-  let achievements = readStorageJson<Achievement[]>(storageKeys.achievements, INITIAL_ACHIEVEMENTS);
-  let checkIn = readStorageJson<CheckInState>(storageKeys.checkIn, INITIAL_CHECKIN_STATE);
-  let leaderboard = readStorageJson<LeaderboardItem[]>(storageKeys.leaderboard, INITIAL_LEADERBOARD);
-
-  // Sanitize achievements with tier structures
-  achievements = achievements.map(ach => ({
-    ...ach,
-    tier: ach.tier || 1,
-    rewardsClaimed: ach.rewardsClaimed === undefined ? false : ach.rewardsClaimed
-  }));
-
-  // Add user to leaderboard dynamically if not present
-  const userInLeaderboard = leaderboard.find(item => item.id === profile.id);
-  if (!userInLeaderboard) {
-    leaderboard.push({
-      id: profile.id,
-      nickname: profile.nickname,
-      avatarId: profile.avatarId,
-      points: profile.points,
-      isCurrentUser: true
-    });
-  } else {
-    // Update existing
-    userInLeaderboard.points = profile.points;
-    userInLeaderboard.nickname = profile.nickname;
-    userInLeaderboard.avatarId = profile.avatarId;
-  }
-  
-  // Sort leaderboard
-  leaderboard.sort((a,b) => b.points - a.points);
-
-  // Check checkin today
-  const todayStr = new Date().toISOString().split('T')[0];
-  if (checkIn.lastCheckInDate === todayStr) {
-    checkIn.checkedInToday = true;
-  } else {
-    checkIn.checkedInToday = false;
-  }
-
-  return { profile, achievements, checkIn, leaderboard };
-}
-
-export function saveGameState(
-  profile: UserProfile,
-  achievements: Achievement[],
-  checkIn: CheckInState,
-  leaderboard: LeaderboardItem[]
-) {
-  // Sync user in leaderboard
-  const userInLd = leaderboard.find(item => item.id === profile.id);
-  if (userInLd) {
-    userInLd.points = profile.points;
-    userInLd.nickname = profile.nickname;
-    userInLd.avatarId = profile.avatarId;
-  } else {
-    leaderboard.push({
-      id: profile.id,
-      nickname: profile.nickname,
-      avatarId: profile.avatarId,
-      points: profile.points,
-      isCurrentUser: true
-    });
-  }
-  leaderboard.sort((a,b) => b.points - a.points);
-
-  writeStorageJson(storageKeys.profile, profile);
-  writeStorageJson(storageKeys.achievements, achievements);
-  writeStorageJson(storageKeys.checkIn, checkIn);
-  writeStorageJson(storageKeys.leaderboard, leaderboard);
-}
 
 // Check newly unlocked achievements
 export function checkAchievements(
