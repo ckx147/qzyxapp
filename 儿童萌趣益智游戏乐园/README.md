@@ -1,20 +1,52 @@
-<div align="center">
-<img width="1200" height="475" alt="GHBanner" src="https://ai.google.dev/static/site-assets/images/share-ais-513315318.png" />
-</div>
+# 儿童萌趣益智游戏乐园
 
-# Run and deploy your AI Studio app
+儿童益智游戏合集 Web 原型，包含数字炸弹、数字华容道、舒尔特专注力训练、五子棋、每日打卡、宠物投喂、积分商店、排行榜和成就墙。
 
-This contains everything you need to run your app locally.
+## 当前状态
 
-View your app in AI Studio: https://ai.studio/apps/f9c9c2b0-1edb-4b4a-ba9e-61e144b2e5e8
+- 技术栈：Vite + React + TypeScript + Tailwind CSS
+- 当前形态：Web 原型，尚不是微信小程序工程
+- 数据存储：浏览器 `localStorage`
+- 音效：Web Audio API
 
-## Run Locally
+## 本地运行
 
-**Prerequisites:**  Node.js
+```powershell
+npm install
+npm run dev
+```
 
+默认地址：
 
-1. Install dependencies:
-   `npm install`
-2. Set the `GEMINI_API_KEY` in [.env.local](.env.local) to your Gemini API key
-3. Run the app:
-   `npm run dev`
+```text
+http://localhost:3000
+```
+
+## 验证命令
+
+```powershell
+npm run test:points
+npm run test:browser:points
+npm run lint
+npm run build
+```
+
+`test:browser:points` 需要先启动本地服务：
+
+```powershell
+npm run dev
+```
+
+如需指定测试地址：
+
+```powershell
+$env:APP_URL="http://localhost:3000"
+npm run test:browser:points
+```
+
+## 已知说明
+
+- 当前没有接入 Gemini 或其他 AI API。
+- 当前排行榜、用户档案、成就和打卡均为本地模拟数据。
+- 如果要迁移到微信小程序，需要替换 `localStorage`、DOM、图片处理和 Web Audio API 等 Web 能力。
+
