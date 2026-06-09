@@ -550,6 +550,23 @@ export const BombGame: React.FC<BombGameProps> = ({
         </button>
       </div>
 
+      <div className="storybook-game-scene scene-bomb p-4 mb-4 text-left">
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-14 h-14 rounded-2xl bg-white/90 border border-rose-100 flex items-center justify-center text-3xl shadow-sm">
+            ⏱️
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="inline-flex bg-white/85 border border-orange-100 text-[#D97706] rounded-full px-2.5 py-1 text-[9px] font-black mb-1">
+              第一章 · 数字山谷的安全钟
+            </span>
+            <p className="text-[10.5px] text-[#6B5338] font-bold leading-relaxed">
+              山谷里的安全钟滴答作响，排雷队要在数字边界中找出危险数。
+            </p>
+          </div>
+          <span className="relative z-10 text-4xl animate-soft-pop">💣</span>
+        </div>
+      </div>
+
       {/* Screen Game Stage routers */}
       {gameStage === 'welcome' && (
         <div className="text-center py-8 px-4 animate-fade-in" id="bomb-intro-view">

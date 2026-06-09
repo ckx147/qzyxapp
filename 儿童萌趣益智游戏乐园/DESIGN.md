@@ -50,6 +50,8 @@ Storybook hero: one illustrated scene per major section. It should show a simple
 
 Chapter card: a single list item with an icon stamp, title, short story hook, reward chip, and route trail. Use this instead of generic repeated 2x2 cards for game selection.
 
+Game chapter scene: each game interior starts with one compact illustrated strip that names the chapter, sets the adventure context, and hints at the playable object. Keep it short enough that controls and boards still arrive quickly on mobile.
+
 Game panel: white or warm-white surface, `24px-32px` radius, light peach border, gentle shadow, no thick bottom border.
 
 Game header: compact row, light divider, icon in a small soft square or calm emoji treatment. Use subtle `animate-soft-pop` only when motion adds delight.

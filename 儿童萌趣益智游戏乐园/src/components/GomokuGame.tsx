@@ -406,6 +406,23 @@ export const GomokuGame: React.FC<GomokuProps> = ({
         </div>
       </div>
 
+      <div className="storybook-game-scene scene-gomoku p-4 mb-4 text-left">
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-14 h-14 rounded-2xl bg-white/90 border border-emerald-100 flex items-center justify-center text-3xl shadow-sm">
+            🍒
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="inline-flex bg-white/85 border border-emerald-100 text-emerald-700 rounded-full px-2.5 py-1 text-[9px] font-black mb-1">
+              第四章 · 果园棋盘的五连花
+            </span>
+            <p className="text-[10.5px] text-[#4B6044] font-bold leading-relaxed">
+              在果园棋盘上种下黑白果实，谁先连成五朵花就赢得本章印章。
+            </p>
+          </div>
+          <span className="relative z-10 text-4xl animate-soft-pop">🌸</span>
+        </div>
+      </div>
+
       {showInstructions && (
         <div className="kid-game-note p-4 text-[11px] text-slate-600 space-y-1.5 mb-4 text-left animate-fade-in">
           <p className="font-extrabold text-teal-800 flex items-center gap-1">✨ 怎么玩益智五子棋？</p>

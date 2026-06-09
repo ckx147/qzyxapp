@@ -222,6 +222,23 @@ export const SchulteGame: React.FC<SchulteProps> = ({
         </div>
       </div>
 
+      <div className="storybook-game-scene scene-schulte p-4 mb-4 text-left">
+        <div className="relative z-10 flex items-center gap-3">
+          <div className="w-14 h-14 rounded-2xl bg-white/90 border border-amber-100 flex items-center justify-center text-3xl shadow-sm">
+            🔭
+          </div>
+          <div className="flex-1 min-w-0">
+            <span className="inline-flex bg-white/85 border border-amber-100 text-[#D97706] rounded-full px-2.5 py-1 text-[9px] font-black mb-1">
+              第三章 · 星桥观察员
+            </span>
+            <p className="text-[10.5px] text-[#6B5338] font-bold leading-relaxed">
+              星桥上的数字会发光，按照顺序找到它们，训练眼睛的巡航力。
+            </p>
+          </div>
+          <span className="relative z-10 text-4xl animate-soft-pop">⭐</span>
+        </div>
+      </div>
+
       {showInstructions && (
         <div className="kid-game-note p-4 text-[11px] text-slate-600 space-y-1.5 mb-3 text-left">
           <p className="font-black text-amber-800">💡 舒尔特训练有什么好处？</p>
