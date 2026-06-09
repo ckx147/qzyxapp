@@ -5,20 +5,35 @@
 
 class SoundSynthesizer {
   private ctx: AudioContext | null = null;
-  private isMuted: boolean = false;
+  private isEffectsMuted: boolean = false;
+  private isMusicMuted: boolean = false;
   private isBgmPlaying: boolean = false;
   private bgmAudio: HTMLAudioElement | null = null;
   private readonly bgmSource = '/audio/Sunlight_on_the_Sandbox.mp3';
+  private readonly bgmVolume = 0.22;
+  private bgmFadeFrame: number | null = null;
 
   constructor() {
     // Read cached setting if exists
     try {
-      const stored = localStorage.getItem('kids_applet_synth_muted');
-      if (stored) {
-        this.isMuted = stored === 'true';
+      const legacyMuted = localStorage.getItem('kids_applet_synth_muted');
+      const storedEffects = localStorage.getItem('kids_applet_effects_muted');
+      const storedMusic = localStorage.getItem('kids_applet_music_muted');
+
+      if (storedEffects !== null) {
+        this.isEffectsMuted = storedEffects === 'true';
+      } else if (legacyMuted !== null) {
+        this.isEffectsMuted = legacyMuted === 'true';
+      }
+
+      if (storedMusic !== null) {
+        this.isMusicMuted = storedMusic === 'true';
+      } else if (legacyMuted !== null) {
+        this.isMusicMuted = legacyMuted === 'true';
       }
     } catch {
-      this.isMuted = false;
+      this.isEffectsMuted = false;
+      this.isMusicMuted = false;
     }
   }
 
@@ -37,14 +52,37 @@ class SoundSynthesizer {
   }
 
   getMuteState(): boolean {
-    return this.isMuted;
+    return this.isEffectsMuted && this.isMusicMuted;
+  }
+
+  getEffectsMuteState(): boolean {
+    return this.isEffectsMuted;
+  }
+
+  getMusicMuteState(): boolean {
+    return this.isMusicMuted;
   }
 
   setMuteState(muted: boolean) {
-    this.isMuted = muted;
+    this.setEffectsMuteState(muted);
+    this.setMusicMuteState(muted);
+  }
+
+  setEffectsMuteState(muted: boolean) {
+    this.isEffectsMuted = muted;
     try {
       localStorage.setItem('kids_applet_synth_muted', String(muted));
+      localStorage.setItem('kids_applet_effects_muted', String(muted));
     } catch {}
+  }
+
+  setMusicMuteState(muted: boolean) {
+    this.isMusicMuted = muted;
+    try {
+      localStorage.setItem('kids_applet_synth_muted', String(muted && this.isEffectsMuted));
+      localStorage.setItem('kids_applet_music_muted', String(muted));
+    } catch {}
+
     if (muted) {
       this.stopBgm();
     } else {
@@ -53,13 +91,48 @@ class SoundSynthesizer {
   }
 
   toggleMute(): boolean {
-    this.setMuteState(!this.isMuted);
-    return this.isMuted;
+    this.setMuteState(!this.getMuteState());
+    return this.getMuteState();
+  }
+
+  toggleEffectsMute(): boolean {
+    this.setEffectsMuteState(!this.isEffectsMuted);
+    return this.isEffectsMuted;
+  }
+
+  toggleMusicMute(): boolean {
+    this.setMusicMuteState(!this.isMusicMuted);
+    return this.isMusicMuted;
+  }
+
+  private fadeBgmTo(targetVolume: number, durationMs: number, onComplete?: () => void) {
+    if (!this.bgmAudio) return;
+    if (this.bgmFadeFrame !== null) {
+      window.cancelAnimationFrame(this.bgmFadeFrame);
+      this.bgmFadeFrame = null;
+    }
+
+    const audio = this.bgmAudio;
+    const startVolume = audio.volume;
+    const startTime = performance.now();
+
+    const step = (now: number) => {
+      const progress = Math.min(1, (now - startTime) / durationMs);
+      audio.volume = startVolume + (targetVolume - startVolume) * progress;
+      if (progress < 1) {
+        this.bgmFadeFrame = window.requestAnimationFrame(step);
+      } else {
+        this.bgmFadeFrame = null;
+        onComplete?.();
+      }
+    };
+
+    this.bgmFadeFrame = window.requestAnimationFrame(step);
   }
 
   // --- Background Music (BGM) file playback ---
   startBgm() {
-    if (this.isMuted) return;
+    if (this.isMusicMuted) return;
     if (this.isBgmPlaying) return;
 
     this.initContext();
@@ -68,26 +141,34 @@ class SoundSynthesizer {
       this.bgmAudio = new Audio(this.bgmSource);
       this.bgmAudio.loop = true;
       this.bgmAudio.preload = 'auto';
-      this.bgmAudio.volume = 0.22;
+      this.bgmAudio.volume = 0;
     }
 
     this.isBgmPlaying = true;
     this.bgmAudio.currentTime = this.bgmAudio.currentTime || 0;
-    this.bgmAudio.play().catch(() => {
-      this.isBgmPlaying = false;
-    });
+    this.bgmAudio.play()
+      .then(() => {
+        this.fadeBgmTo(this.bgmVolume, 900);
+      })
+      .catch(() => {
+        this.isBgmPlaying = false;
+      });
   }
 
   stopBgm() {
     this.isBgmPlaying = false;
     if (this.bgmAudio) {
-      this.bgmAudio.pause();
+      this.fadeBgmTo(0, 450, () => {
+        if (!this.isBgmPlaying && this.bgmAudio) {
+          this.bgmAudio.pause();
+        }
+      });
     }
   }
 
   // Cute pop bubble click sound
   playClick() {
-    if (this.isMuted) return;
+    if (this.isEffectsMuted) return;
     const ctx = this.initContext();
     if (!ctx) return;
 
@@ -113,7 +194,7 @@ class SoundSynthesizer {
 
   // Wooden block slither or grid move swoosh sound
   playMove() {
-    if (this.isMuted) return;
+    if (this.isEffectsMuted) return;
     const ctx = this.initContext();
     if (!ctx) return;
 
@@ -140,7 +221,7 @@ class SoundSynthesizer {
 
   // Metallic coin ring for adding score or claim rewards
   playScore() {
-    if (this.isMuted) return;
+    if (this.isEffectsMuted) return;
     const ctx = this.initContext();
     if (!ctx) return;
 
@@ -170,7 +251,7 @@ class SoundSynthesizer {
 
   // Success chime for winning a turn, solving a sub-puzzle level
   playSuccess() {
-    if (this.isMuted) return;
+    if (this.isEffectsMuted) return;
     const ctx = this.initContext();
     if (!ctx) return;
 
@@ -198,7 +279,7 @@ class SoundSynthesizer {
 
   // Grand celebratory win fanfare (rich chords + sweep)
   playWin() {
-    if (this.isMuted) return;
+    if (this.isEffectsMuted) return;
     const ctx = this.initContext();
     if (!ctx) return;
 
@@ -250,7 +331,7 @@ class SoundSynthesizer {
 
   // Comic warning drop tone or mascot confused error sound
   playWarning() {
-    if (this.isMuted) return;
+    if (this.isEffectsMuted) return;
     const ctx = this.initContext();
     if (!ctx) return;
 
@@ -281,7 +362,7 @@ class SoundSynthesizer {
 
   // Bomb exploded sound effect: rumbly safe cartoon crash noise
   playExplode() {
-    if (this.isMuted) return;
+    if (this.isEffectsMuted) return;
     const ctx = this.initContext();
     if (!ctx) return;
 

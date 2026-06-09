@@ -20,7 +20,10 @@ import {
   Award,
   Zap,
   Info,
-  ChevronRight
+  ChevronRight,
+  Music2,
+  Volume2,
+  VolumeX
 } from 'lucide-react';
 import { UserProfile, Achievement, CheckInState, LeaderboardItem } from './types';
 import { 
@@ -57,7 +60,8 @@ export default function App() {
   // Global notifications state
   const [notification, setNotification] = useState<{ text: string; icon: string; id: number } | null>(null);
   const [unlockedAchievementAlert, setUnlockedAchievementAlert] = useState<Achievement | null>(null);
-  const [muted, setMuted] = useState(soundSynth.getMuteState());
+  const [musicMuted, setMusicMuted] = useState(soundSynth.getMusicMuteState());
+  const [effectsMuted, setEffectsMuted] = useState(soundSynth.getEffectsMuteState());
   const hasCompletedInitialAchievementCheck = useRef(false);
 
   // Initialize Game state
@@ -355,23 +359,38 @@ export default function App() {
             {!activeGame && <span className="text-[8px] text-slate-400 font-bold block mt-1">Lv.8 益智馆</span>}
           </div>
 
-          {/* User Score coin label and Sound toggle */}
+          {/* User Score coin label and audio toggles */}
           <div className="flex items-center gap-1.5 shrink-0">
             <button
               onClick={() => {
-                const nextMute = soundSynth.toggleMute();
-                setMuted(nextMute);
-                if (!nextMute) {
+                const nextMusicMute = soundSynth.toggleMusicMute();
+                setMusicMuted(nextMusicMute);
+              }}
+              className={`bg-white hover:bg-slate-50 border w-7 h-7 rounded-full flex items-center justify-center shadow-3xs cursor-pointer active:scale-90 transition-all ${
+                musicMuted ? 'border-slate-200 text-slate-400' : 'border-amber-200 text-[#FF9F1C]'
+              }`}
+              title={musicMuted ? "开启背景音乐" : "关闭背景音乐"}
+              id="music-mute-toggle-btn"
+              aria-label={musicMuted ? "开启背景音乐" : "关闭背景音乐"}
+            >
+              <Music2 size={14} strokeWidth={2.8} />
+            </button>
+            <button
+              onClick={() => {
+                const nextEffectsMute = soundSynth.toggleEffectsMute();
+                setEffectsMuted(nextEffectsMute);
+                if (!nextEffectsMute) {
                   soundSynth.playSuccess();
-                } else {
-                  // Subtle tap response
                 }
               }}
-              className="bg-white hover:bg-slate-50 border border-slate-200 w-7 h-7 rounded-full flex items-center justify-center text-xs shadow-3xs cursor-pointer active:scale-90 transition-all font-sans"
-              title={muted ? "开启声音" : "关闭声音"}
+              className={`bg-white hover:bg-slate-50 border w-7 h-7 rounded-full flex items-center justify-center shadow-3xs cursor-pointer active:scale-90 transition-all ${
+                effectsMuted ? 'border-slate-200 text-slate-400' : 'border-sky-200 text-[#0EA5E9]'
+              }`}
+              title={effectsMuted ? "开启音效" : "关闭音效"}
               id="sound-mute-toggle-btn"
+              aria-label={effectsMuted ? "开启音效" : "关闭音效"}
             >
-              {muted ? "🔇" : "🔊"}
+              {effectsMuted ? <VolumeX size={14} strokeWidth={2.8} /> : <Volume2 size={14} strokeWidth={2.8} />}
             </button>
             <div className="bg-white px-2.5 py-1.5 rounded-full shadow-sm border border-slate-200 flex items-center gap-1 text-xs">
               <span className="text-sm select-none">✨</span>
