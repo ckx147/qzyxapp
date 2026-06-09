@@ -58,10 +58,23 @@ describe('cloudfunctions skeleton', () => {
     assert.match(source, /exports\.main = async function main/);
   });
 
+  it('keeps saveGameState as a tested implementation draft', () => {
+    const readmePath = resolve('cloudfunctions', 'saveGameState', 'README.md');
+    const sourcePath = resolve('cloudfunctions', 'saveGameState', 'index.cjs');
+    assert.ok(existsSync(readmePath), 'saveGameState README.md should exist');
+    assert.ok(existsSync(sourcePath), 'saveGameState index.cjs should exist');
+
+    const readme = readFileSync(readmePath, 'utf8');
+    const source = readFileSync(sourcePath, 'utf8');
+    assert.match(readme, /Status: implementation draft/);
+    assert.match(source, /exports\.saveGameState = saveGameState/);
+    assert.match(source, /exports\.main = async function main/);
+  });
+
   it('keeps cloud function names aligned with the frontend cloud port', () => {
     const portSource = readFileSync(resolve('src/utils/cloudGameDataPort.ts'), 'utf8');
 
-    for (const fnName of ['loginOrCreateUser', 'getHomeState', 'getLeaderboard', ...cloudFunctionDirs]) {
+    for (const fnName of ['loginOrCreateUser', 'getHomeState', 'saveGameState', 'getLeaderboard', ...cloudFunctionDirs]) {
       assert.match(portSource, new RegExp(`${fnName}: '${fnName}'`));
     }
   });
