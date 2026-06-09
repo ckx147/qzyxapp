@@ -22,6 +22,27 @@ async function readProfile(page) {
   return JSON.parse(await page.evaluate(() => localStorage.getItem('kid_games_profile')));
 }
 
+async function readAchievements(page) {
+  return JSON.parse(await page.evaluate(() => localStorage.getItem('kid_games_achievements')));
+}
+
+async function setRandomQueue(page, values) {
+  await page.evaluate((queueValues) => {
+    window.__originalMathRandomForGameSmoke = window.__originalMathRandomForGameSmoke || Math.random;
+    const queue = [...queueValues];
+    Math.random = () => (queue.length ? queue.shift() : 0);
+  }, values);
+}
+
+async function restoreRandom(page) {
+  await page.evaluate(() => {
+    if (window.__originalMathRandomForGameSmoke) {
+      Math.random = window.__originalMathRandomForGameSmoke;
+      delete window.__originalMathRandomForGameSmoke;
+    }
+  });
+}
+
 async function openGamesHub(page) {
   await closeBlockingModals(page);
   await page.getByRole('button', { name: /游戏堡/ }).click();
@@ -44,26 +65,33 @@ async function clickBombKeypad(page, value) {
 async function testBomb(page) {
   await openGame(page, '#launch-bomb-game-card');
   await page.waitForSelector('#bomb-game-module');
-  await page.evaluate(() => {
-    window.__originalMathRandomForGameSmoke = Math.random;
-    Math.random = () => 0.5;
-  });
+  await setRandomQueue(page, [0.5, 0]);
 
   const before = (await readProfile(page)).points;
-  await page.getByRole('button', { name: /开启拆雷派对/ }).click();
+  await page.getByRole('button', { name: /开启拆雷派对/ }).click({ force: true });
   await page.waitForSelector('#bomb-play-view');
   await clickBombKeypad(page, 51);
   await page.waitForSelector('#bomb-exploded-panel', { timeout: 10000 });
   await closeBlockingModals(page);
   await page.getByRole('button', { name: /我已经完成了有趣的运动惩罚/ }).click({ force: true });
   await page.waitForSelector('#bomb-intro-view', { timeout: 10000 });
+  await restoreRandom(page);
 
-  await page.evaluate(() => {
-    if (window.__originalMathRandomForGameSmoke) {
-      Math.random = window.__originalMathRandomForGameSmoke;
-      delete window.__originalMathRandomForGameSmoke;
-    }
-  });
+  const after = (await readProfile(page)).points;
+  return { before, after, delta: after - before };
+}
+
+async function testBombAiClear(page) {
+  await openGame(page, '#launch-bomb-game-card');
+  await page.waitForSelector('#bomb-game-module');
+  await setRandomQueue(page, [0.5, 0.08]);
+
+  const before = (await readProfile(page)).points;
+  await page.getByRole('button', { name: /开启拆雷派对/ }).click({ force: true });
+  await page.waitForSelector('#bomb-play-view');
+  await clickBombKeypad(page, 25);
+  await page.waitForSelector('#bomb-cleared-panel', { timeout: 10000 });
+  await restoreRandom(page);
 
   const after = (await readProfile(page)).points;
   return { before, after, delta: after - before };
@@ -173,6 +201,95 @@ async function testGomoku(page) {
   return { before, after, delta: after - before };
 }
 
+async function gomokuPieceCount(page) {
+  return page.locator('#gomoku-fruit-board > div').evaluateAll((cells) =>
+    cells.filter((cell) => cell.querySelector('.rounded-full.bg-gradient-to-br')).length
+  );
+}
+
+async function waitForPieceCount(page, count) {
+  await page.waitForFunction((expectedCount) => {
+    const cells = Array.from(document.querySelectorAll('#gomoku-fruit-board > div'));
+    return cells.filter((cell) => cell.querySelector('.rounded-full.bg-gradient-to-br')).length >= expectedCount;
+  }, count, { timeout: 10000 });
+}
+
+async function testGomokuWhiteWin(page) {
+  await openGame(page, '#launch-gomoku-game-card');
+  await page.waitForSelector('#gomoku-game-module');
+  await page.locator('#btn-mode-pvp').click();
+  await page.waitForTimeout(200);
+
+  const before = (await readProfile(page)).points;
+  const moves = [
+    [10, 10], [0, 0],
+    [9, 10], [0, 1],
+    [8, 10], [0, 2],
+    [7, 10], [0, 3],
+    [6, 9], [0, 4],
+  ];
+
+  for (const [row, col] of moves) {
+    const beforeMoveCount = await gomokuPieceCount(page);
+    await page.locator(`#cell-${row}-${col}`).click();
+    await waitForPieceCount(page, beforeMoveCount + 1);
+  }
+
+  await page.waitForSelector('text=白子队连成一线获胜', { timeout: 15000 });
+  const after = (await readProfile(page)).points;
+  return { before, after, delta: after - before };
+}
+
+async function testAchievementClaimOnce(page) {
+  await page.evaluate(() => {
+    const profile = JSON.parse(localStorage.getItem('kid_games_profile'));
+    const achievements = JSON.parse(localStorage.getItem('kid_games_achievements'));
+    const checkIn = JSON.parse(localStorage.getItem('kid_games_checkin'));
+    const target = achievements.find((achievement) => achievement.id === 'ach_checkin_1');
+
+    profile.points = 500;
+    checkIn.unlockedItems = ['糖果'];
+    checkIn.streak = Math.max(checkIn.streak || 0, 1);
+    target.unlocked = true;
+    target.rewardsClaimed = false;
+    target.progress = 1;
+    target.tier = 1;
+    target.targetValue = 1;
+
+    localStorage.setItem('kid_games_profile', JSON.stringify(profile));
+    localStorage.setItem('kid_games_achievements', JSON.stringify(achievements));
+    localStorage.setItem('kid_games_checkin', JSON.stringify(checkIn));
+  });
+  await page.reload({ waitUntil: 'networkidle' });
+  await closeBlockingModals(page);
+
+  const before = (await readProfile(page)).points;
+  await page.locator('#tab-btn-profile').click();
+  await page.waitForSelector('#achievements-gallery-module');
+  await page.getByRole('button', { name: /开启【青铜级】晋级宝盒/ }).first().click({ force: true });
+  await page.waitForFunction(() => {
+    const profile = JSON.parse(localStorage.getItem('kid_games_profile'));
+    return profile.points === 550;
+  }, null, { timeout: 10000 });
+
+  const afterFirstClaim = (await readProfile(page)).points;
+  await page.waitForTimeout(500);
+  const claimButtonsAfter = await page.getByRole('button', { name: /开启【青铜级】晋级宝盒/ }).count();
+  const afterSecondAttempt = (await readProfile(page)).points;
+  const achievement = (await readAchievements(page)).find((item) => item.id === 'ach_checkin_1');
+
+  return {
+    before,
+    afterFirstClaim,
+    afterSecondAttempt,
+    firstDelta: afterFirstClaim - before,
+    secondDelta: afterSecondAttempt - afterFirstClaim,
+    claimButtonsAfter,
+    nextTier: achievement.tier,
+    unlockedAfterClaim: achievement.unlocked,
+  };
+}
+
 const browser = await chromium.launch({ headless: true });
 
 try {
@@ -184,18 +301,23 @@ try {
 
   const result = {
     bomb: await testBomb(page),
+    bombAiClear: await testBombAiClear(page),
     klotski: await testKlotski(page),
     schulte: await testSchulte(page),
     gomoku: await testGomoku(page),
+    gomokuWhiteWin: await testGomokuWhiteWin(page),
+    achievementClaim: await testAchievementClaimOnce(page),
   };
 
   console.log(JSON.stringify(result, null, 2));
 
   const expected = {
     bomb: 10,
+    bombAiClear: 50,
     klotski: 80,
     schulte: 60,
     gomoku: 50,
+    gomokuWhiteWin: 50,
   };
 
   for (const [game, delta] of Object.entries(expected)) {
@@ -203,6 +325,18 @@ try {
       throw new Error(`Expected ${game} to change points by ${delta}, got ${result[game].delta}`);
     }
   }
+
+  if (result.achievementClaim.firstDelta !== 50) {
+    throw new Error(`Expected first achievement claim to add 50 points, got ${result.achievementClaim.firstDelta}`);
+  }
+
+  if (result.achievementClaim.secondDelta !== 0 || result.achievementClaim.nextTier !== 2 || result.achievementClaim.unlockedAfterClaim) {
+    throw new Error(`Achievement claim did not advance exactly once: ${JSON.stringify(result.achievementClaim)}`);
+  }
 } finally {
+  try {
+    const pages = browser.contexts().flatMap((context) => context.pages());
+    await Promise.all(pages.map((page) => restoreRandom(page).catch(() => {})));
+  } catch {}
   await browser.close();
 }
