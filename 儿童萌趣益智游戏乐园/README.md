@@ -58,6 +58,16 @@ npm.cmd run verify:android
 
 如果真机仍然白屏，页面会在几秒后显示“启动诊断”面板，优先查看面板里的资源加载失败或运行时错误信息。
 
+### 图标与启动页
+
+HBuilder X 打包时使用以下稳定资产：
+
+- 图标：`public/branding/app-icon-1024.png`
+- 备用图标：`public/branding/app-icon-512.png`
+- 启动页：`public/branding/splash-1080x1920.png`
+
+原始图片备份在 `public/branding/app-icon-source.png` 和 `public/branding/splash-source.png`。
+
 ## 已知说明
 
 - 当前没有接入 Gemini 或其他 AI API。

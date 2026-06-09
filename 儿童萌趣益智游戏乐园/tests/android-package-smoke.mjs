@@ -7,6 +7,7 @@ const projectRoot = dirname(dirname(fileURLToPath(import.meta.url)));
 const distRoot = join(projectRoot, 'dist');
 const indexPath = join(distRoot, 'index.html');
 const bgmPath = join(distRoot, 'audio', 'Sunlight_on_the_Sandbox.mp3');
+const brandingRoot = join(projectRoot, 'public', 'branding');
 
 function assertFileExists(path, message) {
   assert.ok(existsSync(path), `${message}: ${normalize(path)}`);
@@ -15,6 +16,25 @@ function assertFileExists(path, message) {
 function collectAssetRefs(indexHtml) {
   return [...indexHtml.matchAll(/\b(?:src|href)="(\.\/assets\/[^"]+)"/g)]
     .map(match => match[1]);
+}
+
+function readPngSize(path) {
+  const buffer = readFileSync(path);
+  assert.equal(buffer.toString('ascii', 1, 4), 'PNG', `Branding asset must be a PNG: ${normalize(path)}`);
+  return {
+    width: buffer.readUInt32BE(16),
+    height: buffer.readUInt32BE(20),
+  };
+}
+
+function assertPngSize(path, expectedWidth, expectedHeight) {
+  assertFileExists(path, 'Branding asset is missing');
+  const size = readPngSize(path);
+  assert.deepEqual(
+    size,
+    { width: expectedWidth, height: expectedHeight },
+    `Branding asset has wrong dimensions: ${normalize(path)}`
+  );
 }
 
 assertFileExists(indexPath, 'Run npm run build before android package checks');
@@ -40,6 +60,11 @@ for (const assetRef of assetRefs) {
 }
 
 assertFileExists(bgmPath, 'Packaged BGM file is missing');
+assertFileExists(join(brandingRoot, 'splash-source.png'), 'Splash source image is missing');
+assertFileExists(join(brandingRoot, 'app-icon-source.png'), 'App icon source image is missing');
+assertPngSize(join(brandingRoot, 'splash-1080x1920.png'), 1080, 1920);
+assertPngSize(join(brandingRoot, 'app-icon-1024.png'), 1024, 1024);
+assertPngSize(join(brandingRoot, 'app-icon-512.png'), 512, 512);
 
 const builtJs = assetRefs
   .filter(assetRef => assetRef.endsWith('.js'))
@@ -62,4 +87,5 @@ console.log(JSON.stringify({
   androidPackageReady: true,
   checkedAssets: assetRefs.length,
   bgm: './audio/Sunlight_on_the_Sandbox.mp3',
+  brandingAssetsReady: true,
 }, null, 2));
