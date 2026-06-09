@@ -38,10 +38,10 @@ HBuilder X 打包安卓 APK 后白屏，优先怀疑 Vite 产物资源路径。
 每次给 HBuilder X 打包前先运行：
 
 ```powershell
-npm.cmd run build
-npm.cmd run test:android-package
-npm.cmd run test:browser:dist
+npm.cmd run verify:android
 ```
+
+`verify:android` 会依次执行 `build`、`test:android-package`、`test:browser:dist`。
 
 `test:android-package` 会自动检查 `dist/index.html`：
 

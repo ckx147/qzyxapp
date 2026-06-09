@@ -31,6 +31,7 @@ npm run lint
 npm run build
 npm run test:android-package
 npm run test:browser:dist
+npm run verify:android
 ```
 
 `test:browser:points` 需要先启动本地服务：
@@ -49,9 +50,7 @@ npm run test:browser:points
 ## HBuilder X 安卓 APK 打包
 
 ```powershell
-npm.cmd run build
-npm.cmd run test:android-package
-npm.cmd run test:browser:dist
+npm.cmd run verify:android
 ```
 
 检查通过后，在 HBuilder X 中使用构建后的 `dist` 目录作为打包入口。不要直接使用项目根目录。
