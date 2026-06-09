@@ -3,6 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
+import { readStorageString, storageKeys, writeStorageString } from './gameStorage';
+
 class SoundSynthesizer {
   private ctx: AudioContext | null = null;
   private isEffectsMuted: boolean = false;
@@ -16,9 +18,9 @@ class SoundSynthesizer {
   constructor() {
     // Read cached setting if exists
     try {
-      const legacyMuted = localStorage.getItem('kids_applet_synth_muted');
-      const storedEffects = localStorage.getItem('kids_applet_effects_muted');
-      const storedMusic = localStorage.getItem('kids_applet_music_muted');
+      const legacyMuted = readStorageString(storageKeys.synthMutedLegacy);
+      const storedEffects = readStorageString(storageKeys.effectsMuted);
+      const storedMusic = readStorageString(storageKeys.musicMuted);
 
       if (storedEffects !== null) {
         this.isEffectsMuted = storedEffects === 'true';
@@ -71,16 +73,16 @@ class SoundSynthesizer {
   setEffectsMuteState(muted: boolean) {
     this.isEffectsMuted = muted;
     try {
-      localStorage.setItem('kids_applet_synth_muted', String(muted));
-      localStorage.setItem('kids_applet_effects_muted', String(muted));
+      writeStorageString(storageKeys.synthMutedLegacy, String(muted));
+      writeStorageString(storageKeys.effectsMuted, String(muted));
     } catch {}
   }
 
   setMusicMuteState(muted: boolean) {
     this.isMusicMuted = muted;
     try {
-      localStorage.setItem('kids_applet_synth_muted', String(muted && this.isEffectsMuted));
-      localStorage.setItem('kids_applet_music_muted', String(muted));
+      writeStorageString(storageKeys.synthMutedLegacy, String(muted && this.isEffectsMuted));
+      writeStorageString(storageKeys.musicMuted, String(muted));
     } catch {}
 
     if (muted) {

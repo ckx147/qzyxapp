@@ -5,6 +5,7 @@
 
 import { UserProfile, Achievement, LeaderboardItem, GameRecord, CheckInState } from '../types';
 import { getAchievementTierConfig } from './tierConfig';
+import { readStorageJson, storageKeys, writeStorageJson } from './gameStorage';
 
 export const AVATARS = [
   { id: 'avatar_dino', char: '🦖', name: '萌酷霸王龙', color: 'bg-emerald-100 border-emerald-300' },
@@ -195,15 +196,10 @@ export const DAILY_REWARDS = [
 ];
 
 export function getGameState() {
-  const profileStr = localStorage.getItem('kid_games_profile');
-  const achievementsStr = localStorage.getItem('kid_games_achievements');
-  const checkInStr = localStorage.getItem('kid_games_checkin');
-  const leaderboardStr = localStorage.getItem('kid_games_leaderboard');
-
-  let profile = profileStr ? JSON.parse(profileStr) as UserProfile : INITIAL_PROFILE;
-  let achievements = achievementsStr ? JSON.parse(achievementsStr) as Achievement[] : INITIAL_ACHIEVEMENTS;
-  let checkIn = checkInStr ? JSON.parse(checkInStr) as CheckInState : INITIAL_CHECKIN_STATE;
-  let leaderboard = leaderboardStr ? JSON.parse(leaderboardStr) as LeaderboardItem[] : INITIAL_LEADERBOARD;
+  let profile = readStorageJson<UserProfile>(storageKeys.profile, INITIAL_PROFILE);
+  let achievements = readStorageJson<Achievement[]>(storageKeys.achievements, INITIAL_ACHIEVEMENTS);
+  let checkIn = readStorageJson<CheckInState>(storageKeys.checkIn, INITIAL_CHECKIN_STATE);
+  let leaderboard = readStorageJson<LeaderboardItem[]>(storageKeys.leaderboard, INITIAL_LEADERBOARD);
 
   // Sanitize achievements with tier structures
   achievements = achievements.map(ach => ({
@@ -266,10 +262,10 @@ export function saveGameState(
   }
   leaderboard.sort((a,b) => b.points - a.points);
 
-  localStorage.setItem('kid_games_profile', JSON.stringify(profile));
-  localStorage.setItem('kid_games_achievements', JSON.stringify(achievements));
-  localStorage.setItem('kid_games_checkin', JSON.stringify(checkIn));
-  localStorage.setItem('kid_games_leaderboard', JSON.stringify(leaderboard));
+  writeStorageJson(storageKeys.profile, profile);
+  writeStorageJson(storageKeys.achievements, achievements);
+  writeStorageJson(storageKeys.checkIn, checkIn);
+  writeStorageJson(storageKeys.leaderboard, leaderboard);
 }
 
 // Check newly unlocked achievements

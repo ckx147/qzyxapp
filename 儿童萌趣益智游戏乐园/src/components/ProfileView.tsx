@@ -8,6 +8,7 @@ import { motion } from 'motion/react';
 import { User, Edit2, Check, Award, Flame, Heart, Sparkles, Trophy, Eye, Star, Upload, Trash2 } from 'lucide-react';
 import { UserProfile, LeaderboardItem } from '../types';
 import { AVATARS } from '../utils/gameHelpers';
+import { readStorageJson, storageKeys, writeStorageJson } from '../utils/gameStorage';
 import { UserAvatar } from './UserAvatar';
 
 interface ProfileProps {
@@ -29,19 +30,13 @@ export const ProfileView: React.FC<ProfileProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [customAvatars, setCustomAvatars] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('bomb_game_custom_profile_avatars');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+    return readStorageJson<string[]>(storageKeys.profileCustomAvatars, []);
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem('bomb_game_custom_profile_avatars', JSON.stringify(customAvatars));
-    } catch (e) {
-      console.warn('Failed to save custom profile avatars:', e);
+    const saved = writeStorageJson(storageKeys.profileCustomAvatars, customAvatars);
+    if (!saved) {
+      console.warn('Failed to save custom profile avatars');
     }
   }, [customAvatars]);
 

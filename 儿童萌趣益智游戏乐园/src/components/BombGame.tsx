@@ -9,6 +9,7 @@ import { ShieldAlert, RefreshCw, Zap, Flame, Smile, Play, Award, Plus, Trash2, U
 import { UserProfile, GameRecord, Achievement } from '../types';
 import { UserAvatar } from './UserAvatar';
 import { soundSynth } from '../utils/audio';
+import { readStorageJson, storageKeys, writeStorageJson } from '../utils/gameStorage';
 
 interface BombGameProps {
   profile: UserProfile;
@@ -293,19 +294,13 @@ export const BombGame: React.FC<BombGameProps> = ({
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [customAvatars, setCustomAvatars] = useState<string[]>(() => {
-    try {
-      const saved = localStorage.getItem('bomb_game_custom_avatars');
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
+    return readStorageJson<string[]>(storageKeys.bombCustomAvatars, []);
   });
 
   useEffect(() => {
-    try {
-      localStorage.setItem('bomb_game_custom_avatars', JSON.stringify(customAvatars));
-    } catch (e) {
-      console.warn('Failed to save custom avatars:', e);
+    const saved = writeStorageJson(storageKeys.bombCustomAvatars, customAvatars);
+    if (!saved) {
+      console.warn('Failed to save custom avatars');
     }
   }, [customAvatars]);
 
