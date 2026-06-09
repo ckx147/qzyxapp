@@ -1,6 +1,6 @@
 # getLeaderboard
 
-Status: planning skeleton only. No deployable cloud function code yet.
+Status: implementation draft. Core logic is test-covered, but this function is not deployed or wired into production yet.
 
 ## Responsibility
 
@@ -52,4 +52,9 @@ Optional:
 
 ## Next Implementation Step
 
-Start with `user_stats.pointsBalance` descending query and cap `limit` on the server.
+Deploy this function after the user collections are created, then verify the real cloud database can sort by `user_stats.pointsBalance` and return public display fields only.
+
+## Local Coverage
+
+- `index.cjs` contains the current implementation draft and WeChat cloud function entry.
+- `tests/get-leaderboard-cloudfunction.test.mjs` covers server-side points sorting, current-user marking, limit normalization, missing `_openid`, and missing-user errors.
