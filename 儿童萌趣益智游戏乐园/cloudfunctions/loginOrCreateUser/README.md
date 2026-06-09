@@ -1,6 +1,6 @@
 # loginOrCreateUser
 
-Status: planning skeleton only. No deployable cloud function code yet.
+Status: implementation draft. Core logic is test-covered, but this function is not deployed or wired into production yet.
 
 ## Responsibility
 
@@ -46,4 +46,9 @@ The client must not send `_openid`.
 
 ## Next Implementation Step
 
-Create the real WeChat cloud function entry after cloud environment selection, then add a tiny integration test or manual verification note showing `_openid` is available.
+Deploy this function in the selected WeChat cloud environment, then add a manual verification note showing `_openid` is available from `cloud.getWXContext()`.
+
+## Local Coverage
+
+- `index.cjs` contains the current implementation draft and WeChat cloud function entry.
+- `tests/login-or-create-user-cloudfunction.test.mjs` covers new-user initialization, existing-user login refresh, and missing `_openid` rejection.

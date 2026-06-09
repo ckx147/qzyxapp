@@ -4,7 +4,6 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const cloudFunctionDirs = [
-  'loginOrCreateUser',
   'getHomeState',
   'getLeaderboard',
 ];
@@ -23,10 +22,23 @@ describe('cloudfunctions skeleton', () => {
     }
   });
 
+  it('keeps loginOrCreateUser as a tested implementation draft', () => {
+    const readmePath = resolve('cloudfunctions', 'loginOrCreateUser', 'README.md');
+    const sourcePath = resolve('cloudfunctions', 'loginOrCreateUser', 'index.cjs');
+    assert.ok(existsSync(readmePath), 'loginOrCreateUser README.md should exist');
+    assert.ok(existsSync(sourcePath), 'loginOrCreateUser index.cjs should exist');
+
+    const readme = readFileSync(readmePath, 'utf8');
+    const source = readFileSync(sourcePath, 'utf8');
+    assert.match(readme, /Status: implementation draft/);
+    assert.match(source, /exports\.loginOrCreateUser = loginOrCreateUser/);
+    assert.match(source, /exports\.main = async function main/);
+  });
+
   it('keeps cloud function names aligned with the frontend cloud port', () => {
     const portSource = readFileSync(resolve('src/utils/cloudGameDataPort.ts'), 'utf8');
 
-    for (const fnName of cloudFunctionDirs) {
+    for (const fnName of ['loginOrCreateUser', ...cloudFunctionDirs]) {
       assert.match(portSource, new RegExp(`${fnName}: '${fnName}'`));
     }
   });
