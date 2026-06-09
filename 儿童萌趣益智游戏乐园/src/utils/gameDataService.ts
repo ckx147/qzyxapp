@@ -3,6 +3,8 @@ import { readStorageJson, storageKeys, writeStorageJson } from './gameStorage';
 import { INITIAL_ACHIEVEMENTS, INITIAL_CHECKIN_STATE, INITIAL_PROFILE } from './gameHelpers';
 import { loadLocalLeaderboard, syncLeaderboard as syncLocalLeaderboard } from './leaderboardService';
 
+export { cloudFunctionNames, createCloudGameDataPort } from './cloudGameDataPort';
+
 export interface GameState {
   profile: UserProfile;
   achievements: Achievement[];
