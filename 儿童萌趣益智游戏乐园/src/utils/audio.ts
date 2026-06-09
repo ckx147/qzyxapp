@@ -6,10 +6,9 @@
 class SoundSynthesizer {
   private ctx: AudioContext | null = null;
   private isMuted: boolean = false;
-  private bgmIntervalId: any = null;
-  private currentBgmBeat: number = 0;
-  private bgmOscillators: { osc: OscillatorNode; gain: GainNode }[] = [];
   private isBgmPlaying: boolean = false;
+  private bgmAudio: HTMLAudioElement | null = null;
+  private readonly bgmSource = '/audio/Sunlight_on_the_Sandbox.mp3';
 
   constructor() {
     // Read cached setting if exists
@@ -58,126 +57,32 @@ class SoundSynthesizer {
     return this.isMuted;
   }
 
-  // --- Background Music (BGM) Realtime Synthesizer ---
+  // --- Background Music (BGM) file playback ---
   startBgm() {
     if (this.isMuted) return;
     if (this.isBgmPlaying) return;
 
-    const ctx = this.initContext();
-    if (!ctx) return;
+    this.initContext();
+
+    if (!this.bgmAudio) {
+      this.bgmAudio = new Audio(this.bgmSource);
+      this.bgmAudio.loop = true;
+      this.bgmAudio.preload = 'auto';
+      this.bgmAudio.volume = 0.22;
+    }
 
     this.isBgmPlaying = true;
-    this.currentBgmBeat = 0;
-
-    const scheduleNextSection = () => {
-      if (!this.isBgmPlaying || this.isMuted) return;
-
-      const now = ctx.currentTime;
-      // Cozy, warm, sleepy pentatonic chord progression (Cmaj7 -> Am9 -> Fmaj7 -> G6)
-      const chords = [
-        [130.81, 196.00, 246.94, 329.63], // Cmaj7
-        [110.00, 164.81, 261.63, 392.00], // Am9
-        [87.31, 130.81, 220.00, 329.63],  // Fmaj7
-        [98.00, 146.83, 246.94, 293.66]   // G6
-      ];
-
-      const currentChord = chords[this.currentBgmBeat % chords.length];
-
-      // Stagger notes to sound like a gentle arpeggio harp
-      currentChord.forEach((freq, idx) => {
-        const delay = idx * 0.2;
-        this.playPadNote(freq, now + delay, 4.2);
-      });
-
-      // Play soft high bell notes on odd beats
-      if (this.currentBgmBeat % 2 === 1) {
-        // Random pentatonic frequencies
-        const pentatonicMelody = [523.25, 587.33, 659.25, 783.99, 880.00]; // C5, D5, E5, G5, A5
-        const freq = pentatonicMelody[Math.floor(Math.random() * pentatonicMelody.length)];
-        this.playBellNote(freq, now + 1.5);
-      }
-
-      this.currentBgmBeat++;
-
-      // Recurse every 4.8 seconds for seamless overlapping transition
-      this.bgmIntervalId = setTimeout(scheduleNextSection, 4800);
-    };
-
-    scheduleNextSection();
-  }
-
-  private playPadNote(freq: number, startTime: number, duration: number) {
-    const ctx = this.ctx;
-    if (!ctx) return;
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-    const filter = ctx.createBiquadFilter();
-
-    osc.type = 'triangle';
-    osc.frequency.setValueAtTime(freq, startTime);
-
-    // Filter to sweep low for warm lofi sound
-    filter.type = 'lowpass';
-    filter.frequency.setValueAtTime(350, startTime);
-
-    // Warm soft fade-in
-    gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(0.012, startTime + 1.2); 
-
-    // Smooth fade-out 
-    gain.gain.setValueAtTime(0.012, startTime + duration - 1.2);
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + duration);
-
-    osc.connect(filter);
-    filter.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start(startTime);
-    osc.stop(startTime + duration + 0.1);
-
-    const activeNode = { osc, gain };
-    this.bgmOscillators.push(activeNode);
-
-    setTimeout(() => {
-      this.bgmOscillators = this.bgmOscillators.filter(item => item !== activeNode);
-    }, (duration + 1.2) * 1000);
-  }
-
-  private playBellNote(freq: number, startTime: number) {
-    const ctx = this.ctx;
-    if (!ctx) return;
-
-    const osc = ctx.createOscillator();
-    const gain = ctx.createGain();
-
-    osc.type = 'sine';
-    osc.frequency.setValueAtTime(freq, startTime);
-
-    gain.gain.setValueAtTime(0, startTime);
-    gain.gain.linearRampToValueAtTime(0.006, startTime + 0.25);
-    gain.gain.exponentialRampToValueAtTime(0.001, startTime + 2.2);
-
-    osc.connect(gain);
-    gain.connect(ctx.destination);
-
-    osc.start(startTime);
-    osc.stop(startTime + 2.3);
+    this.bgmAudio.currentTime = this.bgmAudio.currentTime || 0;
+    this.bgmAudio.play().catch(() => {
+      this.isBgmPlaying = false;
+    });
   }
 
   stopBgm() {
     this.isBgmPlaying = false;
-    if (this.bgmIntervalId) {
-      clearTimeout(this.bgmIntervalId);
-      this.bgmIntervalId = null;
+    if (this.bgmAudio) {
+      this.bgmAudio.pause();
     }
-
-    this.bgmOscillators.forEach(({ osc }) => {
-      try {
-        osc.stop();
-      } catch (e) {}
-    });
-    this.bgmOscillators = [];
   }
 
   // Cute pop bubble click sound
