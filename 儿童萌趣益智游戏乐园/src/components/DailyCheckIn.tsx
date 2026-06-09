@@ -182,46 +182,50 @@ export const DailyCheckIn: React.FC<CheckInProps> = ({
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/50 backdrop-blur-xs flex items-center justify-center p-4 z-50 pointer-events-auto"
+            className="fixed inset-0 bg-[#2A1B10]/50 backdrop-blur-sm flex items-center justify-center p-4 z-50 pointer-events-auto"
             id="reward-claimed-modal"
           >
             <motion.div 
-              initial={{ scale: 0.9, y: 30 }}
+              initial={{ scale: 0.92, y: 28 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.9, y: 30 }}
-              className="bg-white border border-slate-100 rounded-[32px] p-6 max-w-sm w-full text-center shadow-2xl relative"
+              exit={{ scale: 0.92, y: 28 }}
+              className="storybook-hero border border-[#FFE0C2] rounded-[28px] p-5 max-w-sm w-full text-center shadow-[0_24px_70px_rgba(92,62,0,0.18)] relative overflow-hidden"
             >
-              <div className="absolute top-[-36px] left-1/2 transform -translate-x-1/2 bg-amber-400 text-white rounded-full p-3.5 border-4 border-white shadow-lg animate-soft-pop">
+              <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#EAF8FF] to-transparent pointer-events-none" />
+              <div className="absolute left-6 top-16 w-20 h-10 bg-[#8BD99A]/80 rounded-t-full pointer-events-none" />
+              <div className="absolute right-5 top-14 w-24 h-12 bg-[#B6DF7A]/70 rounded-t-full pointer-events-none" />
+
+              <div className="relative mx-auto bg-white text-[#FF9F1C] rounded-[24px] p-3.5 border border-[#FFE0C2] shadow-[0_14px_30px_rgba(217,119,6,0.14)] animate-soft-pop w-fit">
                 <Gift size={24} />
               </div>
 
-              <h3 className="text-lg font-black text-slate-800 mt-6 mb-1">恭喜小勇士！</h3>
-              <p className="text-xs text-[#FF9F1C] font-black uppercase tracking-wider mb-4">打卡成功！思维能量爆表！🚀</p>
+              <h3 className="relative text-lg font-black text-[#5C3E00] mt-4 mb-1">今日贴纸宝箱打开啦</h3>
+              <p className="relative text-[10px] text-[#D97706] font-black tracking-wide mb-4">小布在绘本路线图上盖了一枚新印章</p>
               
-              <div className="bg-amber-50/30 rounded-2xl p-4.5 mb-4 border border-amber-100/50 flex flex-col items-center">
-                <p className="text-slate-400 text-[10px] font-black mb-1.5 uppercase tracking-wide">本次签到获得的宝藏</p>
+              <div className="relative storybook-chapter-card p-4 mb-4 flex flex-col items-center">
+                <p className="text-[#8A6A3A] text-[10px] font-black mb-1.5 tracking-wide">本次签到获得的宝藏</p>
                 <div className="flex items-center gap-4">
                   <div className="flex flex-col items-center">
                     <span className="text-3xl filter drop-shadow-3xs">⭐</span>
-                    <span className="text-xs font-black text-slate-700 mt-1">+{showRewardClaimedModal.points} 星星积分</span>
+                    <span className="text-xs font-black text-[#5C3E00] mt-1">+{showRewardClaimedModal.points} 星星积分</span>
                   </div>
                   <div className="text-amber-300 text-lg font-black">+</div>
                   <div className="flex flex-col items-center">
                     <span className="text-3xl filter drop-shadow-3xs">{showRewardClaimedModal.icon}</span>
-                    <span className="text-xs font-black text-slate-700 mt-1">{showRewardClaimedModal.item} * {showRewardClaimedModal.count}</span>
+                    <span className="text-xs font-black text-[#5C3E00] mt-1">{showRewardClaimedModal.item} * {showRewardClaimedModal.count}</span>
                   </div>
                 </div>
               </div>
 
-              <p className="text-[10px] text-slate-400 font-bold leading-relaxed">
-                这些星点食物已经放入你的魔法零食袋，点击上面的 【小布】 头像给它喂食并增加好感度吧！🦖🍬
+              <p className="relative bg-white/75 border border-[#FFE0C2] rounded-2xl p-3 text-[10px] text-[#6B5338] font-bold leading-relaxed">
+                这些星点食物已经放入魔法零食袋。回到首页点击【小布】头像，就能给它喂食并增加好感度。
               </p>
 
               <button
                 onClick={() => setShowRewardClaimedModal(null)}
-                className="mt-5 w-full bg-[#FF9F1C] hover:bg-orange-500 text-white font-black text-xs py-3 px-6 rounded-2xl transition-all shadow-md active:scale-95 cursor-pointer uppercase tracking-wider"
+                className="kid-game-primary relative mt-5 w-full bg-[#FF9F1C] hover:bg-[#F59E0B] text-white font-black text-xs py-3 px-6 rounded-2xl transition-all active:translate-y-0.5 active:border-b-0 cursor-pointer tracking-wider"
               >
-                太棒了，开启新旅程！
+                收好今日奖励
               </button>
             </motion.div>
           </motion.div>

@@ -841,17 +841,21 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/75 backdrop-blur-md flex items-center justify-center p-4 z-50 pointer-events-auto"
+            className="fixed inset-0 bg-[#2A1B10]/55 backdrop-blur-sm flex items-center justify-center p-4 z-50 pointer-events-auto"
             id="achievement-alert-root"
           >
             <motion.div
-              initial={{ scale: 0.7, y: 100 }}
+              initial={{ scale: 0.92, y: 28 }}
               animate={{ scale: 1, y: 0 }}
-              exit={{ scale: 0.7, y: 100 }}
-              className="bg-white border-6 border-amber-400 rounded-[36px] p-6 max-w-sm w-full text-center relative shadow-ex"
+              exit={{ scale: 0.92, y: 28 }}
+              className="storybook-hero border border-[#FFE0C2] rounded-[28px] p-5 max-w-sm w-full text-center relative overflow-hidden shadow-[0_24px_70px_rgba(92,62,0,0.18)]"
             >
+              <div className="absolute inset-x-0 top-0 h-24 bg-gradient-to-b from-[#EAF8FF] to-transparent pointer-events-none" />
+              <div className="absolute left-5 top-16 w-20 h-10 bg-[#8BD99A]/80 rounded-t-full pointer-events-none" />
+              <div className="absolute right-4 top-14 w-24 h-12 bg-[#B6DF7A]/70 rounded-t-full pointer-events-none" />
+
               {/* Confetti drops elements */}
-              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[30px]">
+              <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[28px]">
                 {Array.from({ length: 12 }).map((_, idx) => (
                       <span
                     key={idx}
@@ -867,7 +871,7 @@ export default function App() {
                 ))}
               </div>
 
-              <div className="w-20 h-20 bg-gradient-to-tr from-amber-400 to-yellow-500 rounded-full flex items-center justify-center text-4xl border-4 border-white shadow-lg mx-auto mb-4 animate-soft-pop">
+              <div className="relative w-20 h-20 bg-white rounded-[26px] flex items-center justify-center text-4xl border border-[#FFE0C2] shadow-[0_14px_30px_rgba(217,119,6,0.14)] mx-auto mb-4 animate-soft-pop">
                 {(() => {
                   const tL = unlockedAchievementAlert.tier || 1;
                   const tC = getAchievementTierConfig(unlockedAchievementAlert.id, tL);
@@ -875,32 +879,32 @@ export default function App() {
                 })()}
               </div>
 
-              <h3 className="text-xl font-black text-slate-800">达成阶段性荣誉！</h3>
-              <p className="text-xs font-bold text-amber-500 uppercase tracking-wider mb-2">你真的越来越聪明啦！</p>
+              <h3 className="relative text-lg font-black text-[#5C3E00]">新的成长贴纸出现啦</h3>
+              <p className="relative text-[10px] font-black text-[#D97706] tracking-wide mb-2">今天的探险记录被写进绘本里了</p>
 
               {(() => {
                 const tL = unlockedAchievementAlert.tier || 1;
                 const tC = getAchievementTierConfig(unlockedAchievementAlert.id, tL);
                 return (
                   <>
-                    <div className="bg-amber-50/70 border-2 border-amber-200/50 rounded-2xl p-4 my-3">
-                      <span className="inline-block bg-amber-400 text-white font-extrabold text-[10px] px-3 py-1 rounded-full mb-1">
+                    <div className="relative storybook-chapter-card p-4 my-3 text-left">
+                      <span className="inline-block bg-[#FFF1D6] text-[#B45309] font-extrabold text-[10px] px-3 py-1 rounded-full mb-1 border border-[#FFE0C2]">
                         【{tC.tierName}】荣誉达成
                       </span>
-                      <p className="font-extrabold text-[#9c5900] text-sm mt-1">{unlockedAchievementAlert.title}</p>
-                      <p className="text-[10px] text-slate-500 font-semibold mt-1 leading-relaxed">
-                        功名进阶成功！累计获得了智慧承认，继续积累刷新记录，就能一直升到【王者级】顶峰哦！💥
+                      <p className="font-extrabold text-[#5C3E00] text-sm mt-1">{unlockedAchievementAlert.title}</p>
+                      <p className="text-[10px] text-[#6B5338] font-semibold mt-1 leading-relaxed">
+                        小布把这枚贴纸贴到了荣誉墙上。继续刷新记录，就能解锁下一页更闪亮的章节。
                       </p>
                     </div>
 
-                    <div className="bg-[#FFF9F2] border border-[#FFE0C2] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 mb-4 text-[10px] font-black text-[#7C4A03] leading-none">
-                      <span className="text-[#8A6A3A] font-bold block">🎁 待领取的进阶大礼袋</span>
+                    <div className="relative bg-white/80 border border-[#FFE0C2] rounded-2xl p-3 flex flex-col items-center justify-center gap-1.5 mb-4 text-[10px] font-black text-[#7C4A03] leading-none shadow-sm">
+                      <span className="text-[#8A6A3A] font-bold block">🎁 待领取的贴纸宝盒</span>
                       <div className="flex items-center gap-1.5 mt-0.5 text-rose-600 font-black">
                         <span>⭐+{tC.pointsReward} 星积分</span>
                         <span>+</span>
                         <span>{tC.foodReward.char}{tC.foodReward.name}×{tC.foodReward.count}</span>
                       </div>
-                      <span className="text-[8px] text-[#B7791F] font-bold mt-1">(可前往 👤 荣誉墙 手动开启此晋级宝池)</span>
+                      <span className="text-[8px] text-[#B7791F] font-bold mt-1">(可前往 👤 荣誉墙 手动开启这个宝盒)</span>
                     </div>
                   </>
                 );
@@ -908,9 +912,9 @@ export default function App() {
 
               <button
                 onClick={() => setUnlockedAchievementAlert(null)}
-                className="w-full bg-gradient-to-r from-amber-500 to-yellow-500 hover:from-amber-600 hover:to-yellow-600 text-white font-black py-3.5 px-6 rounded-2xl shadow-md cursor-pointer transition-all active:scale-95 text-xs"
+                className="kid-game-primary relative w-full bg-[#FF9F1C] hover:bg-[#F59E0B] text-white font-black py-3.5 px-6 rounded-2xl cursor-pointer transition-all active:translate-y-0.5 active:border-b-0 text-xs"
               >
-                我知道啦，开启新旅程！
+                收进我的绘本
               </button>
             </motion.div>
           </motion.div>
