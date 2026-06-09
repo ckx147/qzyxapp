@@ -40,6 +40,7 @@ HBuilder X 打包安卓 APK 后白屏，优先怀疑 Vite 产物资源路径。
 ```powershell
 npm.cmd run build
 npm.cmd run test:android-package
+npm.cmd run test:browser:dist
 ```
 
 `test:android-package` 会自动检查 `dist/index.html`：
@@ -52,6 +53,8 @@ npm.cmd run test:android-package
 - 构建后的 JS 必须引用 `./audio/Sunlight_on_the_Sandbox.mp3`。
 
 检查通过后，在 HBuilder X 中使用构建后的 `dist` 目录作为打包入口。不要直接使用项目根目录。
+
+`test:browser:dist` 会启动一个只服务 `dist` 的本地静态服务器，并用 Playwright 检查生产产物是否能挂载、是否出现启动诊断、是否有 404 资源和页面运行时错误。
 
 ## 如果仍然白屏
 
