@@ -119,6 +119,66 @@ export default function App() {
     setNotification({ text, icon, id: Date.now() });
   };
 
+  const scrollToElement = (elementId: string) => {
+    window.setTimeout(() => {
+      const target = document.getElementById(elementId);
+      if (!target) return;
+
+      const mainScroller = document.getElementById('mobile-main-canvas-content');
+      if (mainScroller && mainScroller.scrollHeight > mainScroller.clientHeight) {
+        const parentRect = mainScroller.getBoundingClientRect();
+        const targetRect = target.getBoundingClientRect();
+        const nextTop = Math.max(0, mainScroller.scrollTop + targetRect.top - parentRect.top - 12);
+        mainScroller.scrollTop = nextTop;
+        mainScroller.scrollTo({
+          top: nextTop,
+          behavior: 'smooth',
+        });
+        return;
+      }
+
+      let scrollParent = target.parentElement;
+      while (scrollParent && scrollParent !== document.body) {
+        const style = window.getComputedStyle(scrollParent);
+        const canScroll = /(auto|scroll)/.test(`${style.overflowY} ${style.overflow}`);
+        if (canScroll && scrollParent.scrollHeight > scrollParent.clientHeight) {
+          const parentRect = scrollParent.getBoundingClientRect();
+          const targetRect = target.getBoundingClientRect();
+          scrollParent.scrollTo({
+            top: Math.max(0, scrollParent.scrollTop + targetRect.top - parentRect.top - 12),
+            behavior: 'smooth',
+          });
+          return;
+        }
+        scrollParent = scrollParent.parentElement;
+      }
+
+      target.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }, 80);
+  };
+
+  const openBackpackShortcut = () => {
+    soundSynth.playClick();
+    setActiveTab('home');
+    setActiveGame(null);
+    scrollToElement('inventory-or-shop-container');
+  };
+
+  const openTodayRouteShortcut = () => {
+    soundSynth.playClick();
+    setActiveTab('games');
+    setActiveGame(null);
+  };
+
+  const openGrowthStampShortcut = () => {
+    soundSynth.playClick();
+    setActiveTab('profile');
+    setActiveGame(null);
+  };
+
   // Clear toast timeout
   useEffect(() => {
     if (notification) {
@@ -413,18 +473,36 @@ export default function App() {
                       今天的故事地图已经展开：先照顾小布，再进入数字山谷、观察星桥和五子棋花园。
                     </p>
                     <div className="mt-3 grid grid-cols-3 gap-2 text-center">
-                      <div className="storybook-stamp py-2">
+                      <button
+                        type="button"
+                        id="shortcut-backpack"
+                        onClick={openBackpackShortcut}
+                        aria-label="查看背包补给"
+                        className="storybook-stamp py-2 transition-all duration-150 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9F1C]/50 cursor-pointer"
+                      >
                         <span className="block text-lg">🎒</span>
                         <span className="text-[8.5px] font-black text-[#8A6A3A]">背包补给</span>
-                      </div>
-                      <div className="storybook-stamp py-2">
+                      </button>
+                      <button
+                        type="button"
+                        id="shortcut-route"
+                        onClick={openTodayRouteShortcut}
+                        aria-label="查看今日路线"
+                        className="storybook-stamp py-2 transition-all duration-150 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9F1C]/50 cursor-pointer"
+                      >
                         <span className="block text-lg">🧭</span>
                         <span className="text-[8.5px] font-black text-[#8A6A3A]">今日路线</span>
-                      </div>
-                      <div className="storybook-stamp py-2">
+                      </button>
+                      <button
+                        type="button"
+                        id="shortcut-stamps"
+                        onClick={openGrowthStampShortcut}
+                        aria-label="查看成长印章"
+                        className="storybook-stamp py-2 transition-all duration-150 active:translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#FF9F1C]/50 cursor-pointer"
+                      >
                         <span className="block text-lg">🏅</span>
                         <span className="text-[8.5px] font-black text-[#8A6A3A]">成长印章</span>
-                      </div>
+                      </button>
                     </div>
                   </div>
 
