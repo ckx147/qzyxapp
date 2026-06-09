@@ -237,7 +237,7 @@ export default function App() {
 
       {/* 4. Elegant Kid-Tablet Simulator Frame */}
       <div 
-        className="relative w-full max-w-[430px] h-[860px] max-h-screen sm:max-h-[860px] bg-gradient-to-b from-[#FFFBF7] to-[#FFF9F2] rounded-none sm:rounded-[54px] shadow-[0_24px_70px_rgba(253,186,116,0.22)] border-0 sm:border-[14px] border-[#FFE5CC] flex flex-col overflow-hidden pb-safe transition-all duration-300 hover:shadow-[0_24px_85px_rgba(253,186,116,0.30)]"
+        className="relative w-full max-w-[430px] h-[860px] max-h-screen sm:max-h-[860px] storybook-page rounded-none sm:rounded-[54px] shadow-[0_24px_70px_rgba(253,186,116,0.22)] border-0 sm:border-[14px] border-[#FFE5CC] flex flex-col overflow-hidden pb-safe transition-all duration-300 hover:shadow-[0_24px_85px_rgba(253,186,116,0.30)]"
         id="kids-applet-mobile-canvas-frame"
       >
         {/* Simulated top notch & device status bar */}
@@ -321,7 +321,7 @@ export default function App() {
         </div>
 
         {/* Dynamic active screens rendering based on context */}
-        <div className="flex-1 overflow-y-auto bg-[#FFF9F2] p-4 relative" id="mobile-main-canvas-content">
+        <div className="flex-1 overflow-y-auto storybook-page p-4 relative" id="mobile-main-canvas-content">
           
           {/* TOAST Notifications alerts */}
           <AnimatePresence>
@@ -395,12 +395,37 @@ export default function App() {
               {activeTab === 'home' && (
                 <div className="space-y-4" id="lobby-view-tab">
                   {/* Banner greeting card */}
-                  <div className="bg-gradient-to-r from-amber-400 to-orange-400 text-white p-4 rounded-3xl relative overflow-hidden shadow-xs text-left">
-                    <span className="absolute right-[-10px] bottom-[-15px] text-7xl opacity-20 rotate-12">🎨</span>
-                    <h3 className="font-extrabold text-base mb-1">欢迎回来，聪明小侦探！🕵️</h3>
-                    <p className="text-[10px] text-amber-50 leading-relaxed font-bold">
-                      今天小布为你准备了丰盛的视觉方块派对和五子棋大战！赶快签到解锁魔法棒吧。
+                  <div className="storybook-hero p-4 relative overflow-hidden text-left">
+                    <div className="storybook-sky h-36 p-4 relative overflow-hidden mb-3">
+                      <div className="absolute left-4 bottom-4 w-24 h-10 bg-[#7BCF8E] rounded-t-full opacity-90" />
+                      <div className="absolute left-24 bottom-3 w-32 h-12 bg-[#A5D96A] rounded-t-full opacity-85" />
+                      <div className="absolute right-4 bottom-5 w-14 h-16 bg-[#FF9F1C] rounded-[22px] rotate-3 shadow-[0_8px_18px_rgba(217,119,6,0.16)] flex items-center justify-center text-3xl">
+                        📖
+                      </div>
+                      <div className="absolute left-6 top-5 storybook-stamp px-3 py-1.5 text-[10px] font-black text-[#D97706]">
+                        今日绘本第 8 章
+                      </div>
+                      <div className="absolute left-7 bottom-8 text-5xl animate-soft-pop">🦖</div>
+                      <div className="absolute right-20 top-7 text-3xl">⭐</div>
+                    </div>
+                    <h3 className="font-black text-[#5C3E00] text-base mb-1">欢迎回到小布的奇思森林</h3>
+                    <p className="text-[10.5px] text-[#6B5338] leading-relaxed font-bold">
+                      今天的故事地图已经展开：先照顾小布，再进入数字山谷、观察星桥和五子棋花园。
                     </p>
+                    <div className="mt-3 grid grid-cols-3 gap-2 text-center">
+                      <div className="storybook-stamp py-2">
+                        <span className="block text-lg">🎒</span>
+                        <span className="text-[8.5px] font-black text-[#8A6A3A]">背包补给</span>
+                      </div>
+                      <div className="storybook-stamp py-2">
+                        <span className="block text-lg">🧭</span>
+                        <span className="text-[8.5px] font-black text-[#8A6A3A]">今日路线</span>
+                      </div>
+                      <div className="storybook-stamp py-2">
+                        <span className="block text-lg">🏅</span>
+                        <span className="text-[8.5px] font-black text-[#8A6A3A]">成长印章</span>
+                      </div>
+                    </div>
                   </div>
 
                   {/* Character Interaction Module */}
@@ -430,106 +455,118 @@ export default function App() {
               {/* Tab 2: Games Hub Selection */}
               {activeTab === 'games' && (
                 <div className="space-y-5 text-left" id="games-selection-tab">
-                  <div className="bg-white p-4 rounded-3xl border border-[#FFE0C2] flex items-center justify-between shadow-sm">
+                  <div className="storybook-hero p-4 flex items-center justify-between">
                     <div className="flex items-center gap-3">
-                      <span className="text-3xl animate-soft-pop">🎖️</span>
+                      <span className="text-3xl animate-soft-pop">🗺️</span>
                       <div>
-                        <p className="text-xs font-black text-slate-700">今天你要挑战哪个法力关卡？</p>
-                        <p className="text-[10px] text-slate-400 font-bold mt-0.5">完成挑战收集星星，购买金币糖果投喂小布！</p>
+                        <p className="text-xs font-black text-[#5C3E00]">选择今天的绘本章节</p>
+                        <p className="text-[10px] text-[#8A6A3A] font-bold mt-0.5">每一章都是一个脑力场景，完成后收集星星和成长印章。</p>
                       </div>
                     </div>
                   </div>
 
-                  <div className="grid grid-cols-2 gap-4" id="hub-games-grid-layout">
+                  <div className="grid grid-cols-1 gap-3" id="hub-games-grid-layout">
                     {/* Game Item 1: Number Bomb (Pink Theme #FF8E9E) */}
                     <div 
                       onClick={() => setActiveGame('bomb')}
-                      className="bg-white rounded-3xl p-5 shadow-[0_12px_28px_rgba(244,63,94,0.08)] border border-rose-100 ring-1 ring-rose-50 flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(244,63,94,0.12)] active:translate-y-0 cursor-pointer"
+                      className="storybook-chapter-card p-4 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                       id="launch-bomb-game-card"
                     >
-                      <div>
-                        <div className="w-12 h-12 bg-[#FFF1F2] border-2 border-[#FFE4E6] rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner">
+                      <div className="flex items-start gap-3">
+                        <div className="w-14 h-14 bg-[#FFF1F2] border-2 border-[#FFE4E6] rounded-2xl flex items-center justify-center text-3xl shadow-inner shrink-0">
                           💣
                         </div>
-                        <h4 className="font-black text-sm text-slate-700">数字炸弹对决</h4>
-                        <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
-                          学动物跳跃惩罚！与笨萌小布轮流避开隐藏的爆破数。
-                        </p>
-                      </div>
-                      <div className="mt-5 flex items-center justify-between">
-                        <span className="text-[9px] bg-[#FFF1F2] text-[#F43F5E] font-black px-2.5 py-1 rounded-full border border-[#FFF1F2]">
-                          +10~50 ⭐/局
-                        </span>
-                        <ChevronRight size={14} className="text-[#FF8E9E]" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className="font-black text-sm text-[#5C3E00]">第一章：数字山谷的安全钟</h4>
+                            <ChevronRight size={14} className="text-[#FF8E9E] shrink-0" />
+                          </div>
+                          <p className="text-[10px] text-[#6B5338] mt-1.5 leading-relaxed font-semibold">
+                            小布在山谷里听见倒计时，和家人轮流排除秘密数字。
+                          </p>
+                          <div className="mt-3 flex items-center gap-2">
+                            <span className="text-[9px] bg-[#FFF1F2] text-[#F43F5E] font-black px-2.5 py-1 rounded-full border border-[#FFE4E6]">+10~50 ⭐</span>
+                            <span className="storybook-trail h-0.5 flex-1" />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
                     {/* Game Item 2: Klotski Slider (Blue Theme #7AD4FF) */}
                     <div 
                       onClick={() => setActiveGame('klotski')}
-                      className="bg-white rounded-3xl p-5 shadow-[0_12px_28px_rgba(2,132,199,0.08)] border border-sky-100 ring-1 ring-sky-50 flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(2,132,199,0.12)] active:translate-y-0 cursor-pointer"
+                      className="storybook-chapter-card p-4 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                       id="launch-klotski-game-card"
                     >
-                      <div>
-                        <div className="w-12 h-12 bg-[#F0F9FF] border-2 border-[#E0F2FE] rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner">
+                      <div className="flex items-start gap-3">
+                        <div className="w-14 h-14 bg-[#F0F9FF] border-2 border-[#E0F2FE] rounded-2xl flex items-center justify-center text-3xl shadow-inner shrink-0">
                           🧩
                         </div>
-                        <h4 className="font-black text-sm text-slate-700">数字华容道</h4>
-                        <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
-                          木质九宫温润拼图！手脑组合让无序的板块完美归航。
-                        </p>
-                      </div>
-                      <div className="mt-5 flex items-center justify-between">
-                        <span className="text-[9px] bg-[#F0F9FF] text-[#0284C7] font-black px-2.5 py-1 rounded-full border border-[#E0F2FE]">
-                          +80~150 ⭐/局
-                        </span>
-                        <ChevronRight size={14} className="text-[#7AD4FF]" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className="font-black text-sm text-[#5C3E00]">第二章：木块城堡的归位路</h4>
+                            <ChevronRight size={14} className="text-[#0284C7] shrink-0" />
+                          </div>
+                          <p className="text-[10px] text-[#6B5338] mt-1.5 leading-relaxed font-semibold">
+                            推动木块穿过城堡小路，把混乱数字送回它们的房间。
+                          </p>
+                          <div className="mt-3 flex items-center gap-2">
+                            <span className="text-[9px] bg-[#F0F9FF] text-[#0284C7] font-black px-2.5 py-1 rounded-full border border-[#E0F2FE]">+80~150 ⭐</span>
+                            <span className="storybook-trail h-0.5 flex-1" />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
                     {/* Game Item 3: Schulte Table (Purple Theme #A78BFF) */}
                     <div 
                       onClick={() => setActiveGame('schulte')}
-                      className="bg-white rounded-3xl p-5 shadow-[0_12px_28px_rgba(109,40,217,0.08)] border border-violet-100 ring-1 ring-violet-50 flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(109,40,217,0.12)] active:translate-y-0 cursor-pointer"
+                      className="storybook-chapter-card p-4 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                       id="launch-schulte-game-card"
                     >
-                      <div>
-                        <div className="w-12 h-12 bg-[#F5F3FF] border-2 border-[#EDE9FE] rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner">
+                      <div className="flex items-start gap-3">
+                        <div className="w-14 h-14 bg-[#F5F3FF] border-2 border-[#EDE9FE] rounded-2xl flex items-center justify-center text-3xl shadow-inner shrink-0">
                           ⚡
                         </div>
-                        <h4 className="font-black text-sm text-slate-700">舒尔特专注力</h4>
-                        <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
-                          一闪一闪亮晶晶！按序狂点追击数字，锻炼全域余光搜寻。
-                        </p>
-                      </div>
-                      <div className="mt-5 flex items-center justify-between">
-                        <span className="text-[9px] bg-[#F5F3FF] text-[#6D28D9] font-black px-2.5 py-1 rounded-full border border-[#EDE9FE]">
-                          +60~120 ⭐/局
-                        </span>
-                        <ChevronRight size={14} className="text-[#A78BFF]" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className="font-black text-sm text-[#5C3E00]">第三章：星桥观察员</h4>
+                            <ChevronRight size={14} className="text-[#6D28D9] shrink-0" />
+                          </div>
+                          <p className="text-[10px] text-[#6B5338] mt-1.5 leading-relaxed font-semibold">
+                            沿着闪闪发光的星桥找数字，训练眼睛和注意力。
+                          </p>
+                          <div className="mt-3 flex items-center gap-2">
+                            <span className="text-[9px] bg-[#F5F3FF] text-[#6D28D9] font-black px-2.5 py-1 rounded-full border border-[#EDE9FE]">+60~120 ⭐</span>
+                            <span className="storybook-trail h-0.5 flex-1" />
+                          </div>
+                        </div>
                       </div>
                     </div>
 
                     {/* Game Item 4: Gomoku Cherry (Green Theme #4ADE80) */}
                     <div 
                       onClick={() => setActiveGame('gomoku')}
-                      className="bg-white rounded-3xl p-5 shadow-[0_12px_28px_rgba(21,128,61,0.08)] border border-emerald-100 ring-1 ring-emerald-50 flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(21,128,61,0.12)] active:translate-y-0 cursor-pointer"
+                      className="storybook-chapter-card p-4 transition-all hover:-translate-y-0.5 active:translate-y-0 cursor-pointer"
                       id="launch-gomoku-game-card"
                     >
-                      <div>
-                        <div className="w-12 h-12 bg-[#F0FDF4] border-2 border-[#DCFCE7] rounded-2xl flex items-center justify-center text-3xl mb-4 shadow-inner">
+                      <div className="flex items-start gap-3">
+                        <div className="w-14 h-14 bg-[#F0FDF4] border-2 border-[#DCFCE7] rounded-2xl flex items-center justify-center text-3xl shadow-inner shrink-0">
                           🍒
                         </div>
-                        <h4 className="font-black text-sm text-slate-700">甜心五子棋</h4>
-                        <p className="text-[10px] text-slate-500 mt-1.5 leading-relaxed font-semibold">
-                          草莓和蓝莓开花！横竖连通五个美味水果，战胜智能小布。
-                        </p>
-                      </div>
-                      <div className="mt-5 flex items-center justify-between">
-                        <span className="text-[9px] bg-[#F0FDF4] text-[#15803D] font-black px-2.5 py-1 rounded-full border border-[#DCFCE7]">
-                          +100 ⭐/胜局
-                        </span>
-                        <ChevronRight size={14} className="text-[#4ADE80]" />
+                        <div className="min-w-0 flex-1">
+                          <div className="flex items-center justify-between gap-2">
+                            <h4 className="font-black text-sm text-[#5C3E00]">第四章：果园棋盘的五连花</h4>
+                            <ChevronRight size={14} className="text-[#15803D] shrink-0" />
+                          </div>
+                          <p className="text-[10px] text-[#6B5338] mt-1.5 leading-relaxed font-semibold">
+                            在果园棋盘上排出五颗果实，和小布练习策略观察。
+                          </p>
+                          <div className="mt-3 flex items-center gap-2">
+                            <span className="text-[9px] bg-[#F0FDF4] text-[#15803D] font-black px-2.5 py-1 rounded-full border border-[#DCFCE7]">+100 ⭐</span>
+                            <span className="storybook-trail h-0.5 flex-1" />
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
