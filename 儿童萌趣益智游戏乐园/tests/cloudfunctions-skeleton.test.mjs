@@ -4,7 +4,6 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const cloudFunctionDirs = [
-  'getHomeState',
   'getLeaderboard',
 ];
 
@@ -35,10 +34,23 @@ describe('cloudfunctions skeleton', () => {
     assert.match(source, /exports\.main = async function main/);
   });
 
+  it('keeps getHomeState as a tested implementation draft', () => {
+    const readmePath = resolve('cloudfunctions', 'getHomeState', 'README.md');
+    const sourcePath = resolve('cloudfunctions', 'getHomeState', 'index.cjs');
+    assert.ok(existsSync(readmePath), 'getHomeState README.md should exist');
+    assert.ok(existsSync(sourcePath), 'getHomeState index.cjs should exist');
+
+    const readme = readFileSync(readmePath, 'utf8');
+    const source = readFileSync(sourcePath, 'utf8');
+    assert.match(readme, /Status: implementation draft/);
+    assert.match(source, /exports\.getHomeState = getHomeState/);
+    assert.match(source, /exports\.main = async function main/);
+  });
+
   it('keeps cloud function names aligned with the frontend cloud port', () => {
     const portSource = readFileSync(resolve('src/utils/cloudGameDataPort.ts'), 'utf8');
 
-    for (const fnName of ['loginOrCreateUser', ...cloudFunctionDirs]) {
+    for (const fnName of ['loginOrCreateUser', 'getHomeState', ...cloudFunctionDirs]) {
       assert.match(portSource, new RegExp(`${fnName}: '${fnName}'`));
     }
   });

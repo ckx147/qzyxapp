@@ -1,6 +1,6 @@
 # getHomeState
 
-Status: planning skeleton only. No deployable cloud function code yet.
+Status: implementation draft. Core logic is test-covered, but this function is not deployed or wired into production yet.
 
 ## Responsibility
 
@@ -49,4 +49,9 @@ Optional:
 
 ## Next Implementation Step
 
-Implement after `loginOrCreateUser` can reliably create the default records.
+Deploy this function after `loginOrCreateUser`, then verify the real cloud database can return the frontend `GameState` shape without exposing `_openid`.
+
+## Local Coverage
+
+- `index.cjs` contains the current implementation draft and WeChat cloud function entry.
+- `tests/get-home-state-cloudfunction.test.mjs` covers home-state mapping, leaderboard current-user fallback, missing `_openid`, and missing-user errors.
