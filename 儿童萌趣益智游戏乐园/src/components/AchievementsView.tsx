@@ -4,15 +4,39 @@
  */
 
 import React from 'react';
-import { motion } from 'motion/react';
-import * as LucideIcons from 'lucide-react';
+import {
+  Award,
+  Calendar,
+  Compass,
+  Cookie,
+  Flame,
+  Heart,
+  Shapes,
+  ShieldAlert,
+  Shuffle,
+  Zap,
+  type LucideIcon,
+} from 'lucide-react';
 import { Achievement } from '../types';
-import { getAchievementTierConfig, TIER_BADGES } from '../utils/tierConfig';
+import { getAchievementTierConfig } from '../utils/tierConfig';
 
 interface AchievementsViewProps {
   achievements: Achievement[];
   onClaimReward: (achId: string) => void;
 }
+
+const ACHIEVEMENT_ICONS: Record<string, LucideIcon> = {
+  Award,
+  Calendar,
+  Compass,
+  Cookie,
+  Flame,
+  Heart,
+  Shapes,
+  ShieldAlert,
+  Shuffle,
+  Zap,
+};
 
 export const AchievementsView: React.FC<AchievementsViewProps> = ({ achievements, onClaimReward }) => {
   // Total claimed/unlocked tiers count to determine their Honorary Title
@@ -71,7 +95,7 @@ export const AchievementsView: React.FC<AchievementsViewProps> = ({ achievements
         {achievements.map((ach) => {
           const tierLevel = ach.tier || 1;
           const config = getAchievementTierConfig(ach.id, tierLevel);
-          const iconComponent = (LucideIcons as any)[ach.icon] || LucideIcons.Award;
+          const iconComponent = ACHIEVEMENT_ICONS[ach.icon] || Award;
           
           // Calculate precise percentages for counts and records (lower is better check)
           let pct = 0;
