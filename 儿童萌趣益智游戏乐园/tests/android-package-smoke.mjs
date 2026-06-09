@@ -29,6 +29,11 @@ assert.doesNotMatch(
 
 const assetRefs = collectAssetRefs(indexHtml);
 assert.ok(assetRefs.length > 0, 'dist/index.html should reference relative ./assets files');
+assert.match(
+  indexHtml,
+  /__APP_BOOT_DIAGNOSTICS__/,
+  'dist/index.html should include the inline boot diagnostics for APK white-screen debugging'
+);
 
 for (const assetRef of assetRefs) {
   assertFileExists(join(distRoot, assetRef), `Referenced asset is missing: ${assetRef}`);

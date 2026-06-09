@@ -7,6 +7,61 @@
   </head>
   <body>
     <div id="root"></div>
+    <script>
+      (function () {
+        var shown = false;
+        function formatMessage(kind, detail) {
+          return [
+            '小布智趣岛启动诊断',
+            '类型：' + kind,
+            '信息：' + String(detail || '未知错误'),
+            '提示：如果这是 APK 白屏，请检查 dist 目录、相对资源路径和真机 WebView 控制台。'
+          ].join('\n');
+        }
+        function showDiagnostics(kind, detail) {
+          if (shown || document.documentElement.dataset.appMounted === 'true') return;
+          shown = true;
+          var panel = document.createElement('pre');
+          panel.id = 'app-boot-diagnostics';
+          panel.textContent = formatMessage(kind, detail);
+          panel.style.cssText = [
+            'position:fixed',
+            'inset:12px',
+            'z-index:2147483647',
+            'margin:0',
+            'padding:14px',
+            'border-radius:14px',
+            'background:#fff7ed',
+            'color:#7c2d12',
+            'border:1px solid #fed7aa',
+            'box-shadow:0 18px 50px rgba(124,45,18,.16)',
+            'font:12px/1.6 ui-monospace,SFMono-Regular,Menlo,Consolas,monospace',
+            'white-space:pre-wrap',
+            'overflow:auto'
+          ].join(';');
+          document.body.appendChild(panel);
+        }
+        window.__APP_BOOT_DIAGNOSTICS__ = { show: showDiagnostics };
+        window.addEventListener('error', function (event) {
+          var target = event.target;
+          if (target && target !== window && (target.src || target.href)) {
+            showDiagnostics('资源加载失败', target.src || target.href);
+            return;
+          }
+          showDiagnostics('运行时错误', event.message);
+        }, true);
+        window.addEventListener('unhandledrejection', function (event) {
+          var reason = event.reason && (event.reason.stack || event.reason.message || event.reason);
+          showDiagnostics('异步错误', reason);
+        });
+        window.setTimeout(function () {
+          var root = document.getElementById('root');
+          if (document.documentElement.dataset.appMounted !== 'true' && (!root || root.children.length === 0)) {
+            showDiagnostics('应用未挂载', '主脚本可能没有执行，或 React 挂载前发生错误。');
+          }
+        }, 3500);
+      })();
+    </script>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
