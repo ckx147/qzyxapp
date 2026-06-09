@@ -11,7 +11,7 @@ class SoundSynthesizer {
   private isMusicMuted: boolean = false;
   private isBgmPlaying: boolean = false;
   private bgmAudio: HTMLAudioElement | null = null;
-  private readonly bgmSource = '/audio/Sunlight_on_the_Sandbox.mp3';
+  private readonly bgmSource = `${import.meta.env.BASE_URL}audio/Sunlight_on_the_Sandbox.mp3`;
   private readonly bgmVolume = 0.22;
   private bgmFadeFrame: number | null = null;
 

@@ -5,6 +5,9 @@ import {defineConfig} from 'vite';
 
 export default defineConfig(() => {
   return {
+    // HBuilder X / Android WebView loads packaged files from a nested local path,
+    // so generated assets must be relative instead of rooted at /assets.
+    base: './',
     plugins: [react(), tailwindcss()],
     resolve: {
       alias: {
