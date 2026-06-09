@@ -128,7 +128,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-[32px] p-5 shadow-xl border-b-8 border-[#FF8E9E] space-y-5 relative" id="profile-dashboard-card">
+    <div className="kid-game-panel p-5 space-y-5 relative" id="profile-dashboard-card">
       {/* 1. Header Profile details */}
       <div className="bg-slate-50/75 rounded-[28px] p-5 border border-slate-100 flex flex-col items-center relative overflow-hidden">
         
@@ -214,7 +214,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
             initial={{ opacity: 0, scale: 0.95, y: 15 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             onClick={(e) => e.stopPropagation()}
-            className="bg-white border-4 border-[#FFE0C2] rounded-[28px] p-4 w-full text-center shadow-2xl space-y-4 max-h-full overflow-y-auto shrink-0"
+            className="bg-white border border-[#FFE0C2] rounded-[28px] p-4 w-full text-center shadow-[0_18px_42px_rgba(15,23,42,0.16)] space-y-4 max-h-full overflow-y-auto shrink-0"
             id="avatar-scroller-popup"
           >
             <div className="flex items-center justify-between pb-1 border-b border-slate-100">
@@ -240,7 +240,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
                         <button
                           type="button"
                           onClick={() => handleSelectAvatar(dataUrl)}
-                          className={`w-full p-2 rounded-xl border border-b-4 transition-all flex flex-col items-center bg-white cursor-pointer ${
+                          className={`w-full p-2 rounded-xl border transition-all flex flex-col items-center bg-white cursor-pointer ${
                             isSelected 
                               ? 'bg-amber-100 border-amber-400' 
                               : 'border-slate-200 hover:bg-slate-50'
@@ -280,7 +280,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
               <button
                 type="button"
                 onClick={() => fileInputRef.current?.click()}
-                className="p-2 rounded-xl border-2 border-dashed border-slate-300 bg-white hover:bg-orange-50 hover:border-orange-400 hover:text-orange-600 transition-all cursor-pointer aspect-square flex flex-col items-center justify-center text-slate-500 text-center"
+                className="p-2 rounded-xl border-2 border-dashed border-slate-300 bg-white hover:bg-orange-50 hover:border-orange-400 hover:text-orange-700 transition-all cursor-pointer aspect-square flex flex-col items-center justify-center text-orange-800 text-center"
               >
                 <Upload size={16} className="text-slate-400 mb-1" />
                 <span className="text-[8px] font-black leading-tight">拍照/本地上传</span>
@@ -297,7 +297,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
                 <button
                   key={item.id}
                   onClick={() => handleSelectAvatar(item.id)}
-                  className={`p-2 rounded-xl text-2xl border border-b-4 transition-all flex flex-col items-center cursor-pointer ${
+                  className={`p-2 rounded-xl text-2xl border transition-all flex flex-col items-center cursor-pointer ${
                     profile.avatarId === item.id 
                       ? 'bg-amber-400 border-amber-500 text-white shadow-xs' 
                       : 'bg-white border-slate-200 hover:bg-slate-50'
@@ -320,7 +320,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
         </h4>
 
         {/* Game 1: Bomb Games */}
-        <div className="bg-white rounded-2xl p-4 border border-b-4 border-orange-200 text-left flex justify-between items-center shadow-md">
+        <div className="kid-game-note p-4 text-left flex justify-between items-center">
           <div className="flex items-center gap-2.5">
             <span className="text-2xl shrink-0">💣</span>
             <div className="leading-tight">
@@ -339,7 +339,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
         </div>
 
         {/* Game 2: Klotski Sliding */}
-        <div className="bg-white rounded-2xl p-4 border border-b-4 border-emerald-200 text-left shadow-md space-y-3">
+        <div className="kid-game-note p-4 text-left space-y-3">
           <div className="flex items-center gap-2.5 border-b border-slate-100 pb-2">
             <span className="text-2xl shrink-0">🧩</span>
             <div className="leading-tight">
@@ -364,7 +364,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
         </div>
 
         {/* Game 3: Schulte Grid */}
-        <div className="bg-white rounded-2xl p-4 border border-b-4 border-amber-200 text-left shadow-md space-y-3">
+        <div className="kid-game-note p-4 text-left space-y-3">
           <div className="flex items-center gap-2.5 border-b border-slate-100 pb-2">
             <span className="text-2xl shrink-0">👀</span>
             <div className="leading-tight">
@@ -389,7 +389,7 @@ export const ProfileView: React.FC<ProfileProps> = ({
         </div>
 
         {/* Game 4: Gomoku Grid */}
-        <div className="bg-white rounded-2xl p-4 border border-b-4 border-indigo-200 text-left shadow-md">
+        <div className="kid-game-note p-4 text-left">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2.5">
               <span className="text-2xl shrink-0">🍒</span>

@@ -152,7 +152,7 @@ export const DailyCheckIn: React.FC<CheckInProps> = ({
               </div>
 
               {isCurrentActive && (
-                <span className="absolute -top-1.5 bg-rose-500 text-white text-[7px] px-1.5 py-0.5 rounded-full font-black animate-bounce leading-none shadow-3xs">
+                <span className="absolute -top-1.5 bg-rose-500 text-white text-[7px] px-1.5 py-0.5 rounded-full font-black animate-soft-pop leading-none shadow-3xs">
                   可领
                 </span>
               )}
@@ -191,7 +191,7 @@ export const DailyCheckIn: React.FC<CheckInProps> = ({
               exit={{ scale: 0.9, y: 30 }}
               className="bg-white border border-slate-100 rounded-[32px] p-6 max-w-sm w-full text-center shadow-2xl relative"
             >
-              <div className="absolute top-[-36px] left-1/2 transform -translate-x-1/2 bg-amber-400 text-white rounded-full p-3.5 border-4 border-white shadow-lg animate-bounce">
+              <div className="absolute top-[-36px] left-1/2 transform -translate-x-1/2 bg-amber-400 text-white rounded-full p-3.5 border-4 border-white shadow-lg animate-soft-pop">
                 <Gift size={24} />
               </div>
 

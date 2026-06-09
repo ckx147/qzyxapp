@@ -58,12 +58,12 @@ export const AchievementsView: React.FC<AchievementsViewProps> = ({ achievements
   const titleMeta = getAdventurerTitle(totalCompletedTiers);
 
   return (
-    <div className="bg-white rounded-[32px] p-5 shadow-xl border-b-8 border-[#FF8E9E]" id="achievements-gallery-module">
+    <div className="kid-game-panel p-5" id="achievements-gallery-module">
       {/* 1. Header & Summary Stats */}
-      <div className="flex flex-col gap-3 pb-3.5 border-b-2 border-slate-100">
+      <div className="kid-game-header flex flex-col gap-3 pb-3.5">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2 text-left">
-            <span className="text-3xl animate-pulse">🏅</span>
+            <span className="text-3xl animate-soft-pop">🏅</span>
             <div>
               <h3 className="font-black text-slate-700 text-sm">成长魔法荣誉榜</h3>
               <p className="text-[10px] text-slate-400 font-bold mt-0.5">荣誉层层进阶，分步解锁赢伴侣零食好礼！</p>
@@ -135,9 +135,9 @@ export const AchievementsView: React.FC<AchievementsViewProps> = ({ achievements
           return (
             <div 
               key={ach.id}
-              className={`p-5 rounded-[26px] border-2 border-b-6 transition-all flex flex-col justify-between relative overflow-hidden group ${
+              className={`p-5 rounded-[24px] border transition-all flex flex-col justify-between relative overflow-hidden group ${
                 isFullPeak
-                  ? 'bg-gradient-to-br from-[#FFFBEB] via-[#FFF1F2] to-[#EEF2FF] border-amber-400 text-slate-700 shadow-xl'
+                  ? 'bg-[#FFF9F2] border-amber-300 text-slate-700 shadow-[0_14px_28px_rgba(217,119,6,0.10)]'
                   : ach.unlocked
                     ? 'bg-[#FFFDF9] text-slate-800 scale-100 shadow-sm ' + activeBorder
                     : 'bg-slate-50/50 border-slate-200 text-slate-400'
@@ -169,7 +169,7 @@ export const AchievementsView: React.FC<AchievementsViewProps> = ({ achievements
                   }`}>
                     {React.createElement(iconComponent, {
                       size: 20,
-                      className: ach.unlocked && !ach.rewardsClaimed ? 'text-amber-500 animate-bounce' : 'text-[#FF8E9E]'
+                      className: ach.unlocked && !ach.rewardsClaimed ? 'text-amber-500 animate-soft-pop' : 'text-[#FF8E9E]'
                     })}
                   </div>
 
@@ -253,7 +253,7 @@ export const AchievementsView: React.FC<AchievementsViewProps> = ({ achievements
                   <button
                     type="button"
                     onClick={() => onClaimReward(ach.id)}
-                    className="w-full bg-gradient-to-r from-[#FF9F1C] to-red-400 hover:from-[#FFD166] hover:to-[#FF8E9E] text-white text-[9.5px] font-black py-2.5 px-3 rounded-xl shadow-md border-b-2 border-orange-600 active:translate-y-0.5 active:border-b-0 cursor-pointer text-center animate-pulse flex items-center justify-center gap-1.5"
+                    className="kid-game-primary w-full bg-[#FF9F1C] hover:bg-[#F59E0B] text-white text-[9.5px] font-black py-2.5 px-3 rounded-xl active:translate-y-0.5 active:border-b-0 cursor-pointer text-center animate-soft-pop flex items-center justify-center gap-1.5"
                   >
                     <span>🎁 开启【{config.tierName}】晋级宝盒！</span>
                     <span className="text-[8.5px] opacity-90">(得 +{config.pointsReward}⭐ 和 {config.foodReward.char} 零食)</span>
