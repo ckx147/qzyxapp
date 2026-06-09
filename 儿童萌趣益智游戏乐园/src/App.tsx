@@ -65,11 +65,19 @@ export default function App() {
 
   // Initialize Game state
   useEffect(() => {
-    const state = loadGameState();
-    setProfile(state.profile);
-    setAchievements(state.achievements);
-    setCheckIn(state.checkIn);
-    setLeaderboard(state.leaderboard);
+    let isMounted = true;
+
+    loadGameState().then(state => {
+      if (!isMounted) return;
+      setProfile(state.profile);
+      setAchievements(state.achievements);
+      setCheckIn(state.checkIn);
+      setLeaderboard(state.leaderboard);
+    });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Web Audio API BGM auto-activation upon user's first raw interaction (browser gesture bypass)
@@ -89,12 +97,20 @@ export default function App() {
 
   // Save state on any profile or achievement write
   useEffect(() => {
+    let isMounted = true;
+
     if (profile && checkIn) {
-      const savedState = saveGameState(profile, achievements, checkIn, leaderboard);
-      if (JSON.stringify(savedState.leaderboard) !== JSON.stringify(leaderboard)) {
-        setLeaderboard(savedState.leaderboard);
-      }
+      saveGameState({ profile, achievements, checkIn, leaderboard }).then(savedState => {
+        if (!isMounted) return;
+        if (JSON.stringify(savedState.leaderboard) !== JSON.stringify(leaderboard)) {
+          setLeaderboard(savedState.leaderboard);
+        }
+      });
     }
+
+    return () => {
+      isMounted = false;
+    };
   }, [profile, achievements, checkIn, leaderboard]);
 
   // Constantly check if any achievement is unlocked upon stats progress
