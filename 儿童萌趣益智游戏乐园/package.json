@@ -12,6 +12,7 @@
     "test:points": "node --test tests/points-system.test.mjs",
     "test:storage": "node --test tests/storage-adapter.test.mjs",
     "test:data-service": "node --test tests/data-service-boundary.test.mjs",
+    "test:android-package": "node tests/android-package-smoke.mjs",
     "test:gomoku": "node --import tsx --test tests/gomoku-rules.test.mjs",
     "test:browser:points": "node tests/points-browser-smoke.mjs",
     "test:browser:games": "node tests/games-browser-smoke.mjs",
