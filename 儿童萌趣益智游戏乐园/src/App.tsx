@@ -271,7 +271,7 @@ export default function App() {
     return (
       <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center text-slate-500 font-sans">
         <div className="w-10 h-10 border-4 border-amber-400 border-t-transparent rounded-full animate-spin mb-2" />
-        <p className="font-extrabold text-sm">正在加载儿童萌趣乐园...</p>
+        <p className="font-extrabold text-sm">正在加载小布智趣岛...</p>
       </div>
     );
   }
@@ -284,7 +284,7 @@ export default function App() {
       
       {/* Desktop context panels */}
       <div className="hidden lg:block fixed left-10 top-10 text-center max-w-xs text-[#5C3E00] font-medium bg-white/92 p-6 rounded-3xl shadow-[0_18px_45px_rgba(146,64,14,0.12)] border border-[#FFE0C2]">
-        <h1 className="text-xl font-black text-[#FF6B6B] mb-2">好奇小熊 🐻</h1>
+        <h1 className="text-xl font-black text-[#FF6B6B] mb-2">小布智趣岛 🦖</h1>
         <p className="text-xs leading-relaxed text-[#5F5142] font-semibold">
           给孩子的益智练习馆：拆数字谜题、练专注追踪、玩策略对弈，把每次尝试变成清楚的成长反馈。
         </p>
@@ -354,9 +354,9 @@ export default function App() {
                activeGame === 'klotski' ? '🧩 数字华容道' :
                activeGame === 'schulte' ? '⚡ 舒尔特训练' :
                activeGame === 'gomoku' ? '🍇 甜心五子棋' :
-               '好奇小熊'}
+               '小布智趣岛'}
             </h2>
-            {!activeGame && <span className="text-[8px] text-slate-400 font-bold block mt-1">Lv.8 益智馆</span>}
+            {!activeGame && <span className="text-[8px] text-slate-400 font-bold block mt-1">Lv.8 探索馆</span>}
           </div>
 
           {/* User Score coin label and audio toggles */}
