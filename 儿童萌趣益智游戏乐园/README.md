@@ -6,6 +6,7 @@
 
 - 技术栈：Vite + React + TypeScript + Tailwind CSS
 - 当前形态：Web 原型，尚不是微信小程序工程
+- 当前版本：安卓内测 v0.1.0
 - 数据存储：浏览器 `localStorage`
 - 音效：Web Audio API
 
