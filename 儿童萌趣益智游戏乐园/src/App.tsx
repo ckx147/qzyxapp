@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { 
   Home, 
@@ -58,6 +58,7 @@ export default function App() {
   const [notification, setNotification] = useState<{ text: string; icon: string; id: number } | null>(null);
   const [unlockedAchievementAlert, setUnlockedAchievementAlert] = useState<Achievement | null>(null);
   const [muted, setMuted] = useState(soundSynth.getMuteState());
+  const hasCompletedInitialAchievementCheck = useRef(false);
 
   // Initialize Game state
   useEffect(() => {
@@ -93,6 +94,12 @@ export default function App() {
   // Constantly check if any achievement is unlocked upon stats progress
   useEffect(() => {
     if (!profile || achievements.length === 0 || !checkIn) return;
+
+    if (!hasCompletedInitialAchievementCheck.current) {
+      hasCompletedInitialAchievementCheck.current = true;
+      return;
+    }
+
     const { updatedAchievements, newlyUnlocked } = checkAchievements(profile, achievements, checkIn);
     
     if (newlyUnlocked.length > 0) {
@@ -209,22 +216,22 @@ export default function App() {
   const activeAvatarObj = AVATARS.find(a => a.id === profile.avatarId) || AVATARS[0];
 
   return (
-    <div className="min-h-screen bg-magical-playground py-4 sm:py-8 px-2 flex flex-col items-center justify-center font-sans antialiased text-slate-800 selection:bg-rose-200">
+    <div className="min-h-screen bg-magical-playground py-4 sm:py-8 px-2 flex flex-col items-center justify-center font-sans antialiased text-slate-800">
       
-      {/* Decorative desktop decorations - Premium Glassmorphic Bento Cells */}
-      <div className="hidden lg:block fixed left-10 top-10 text-center max-w-xs text-slate-500 font-medium glass-card p-6 rounded-[32px] shadow-lg border border-white/60 animate-float">
-        <h1 className="text-xl font-black bg-gradient-to-r from-[#FF6B6B] to-orange-500 bg-clip-text text-transparent mb-2">好奇小熊 🐻</h1>
-        <p className="text-xs leading-relaxed text-slate-600 font-semibold">
-          双语智能逻辑训练空间，引导孩子在趣味拆雷、滑动数字、专注追踪与美味五子棋的对垒中激活全方位感知力！🚀
+      {/* Desktop context panels */}
+      <div className="hidden lg:block fixed left-10 top-10 text-center max-w-xs text-[#5C3E00] font-medium bg-white/92 p-6 rounded-3xl shadow-[0_18px_45px_rgba(146,64,14,0.12)] border border-[#FFE0C2]">
+        <h1 className="text-xl font-black text-[#FF6B6B] mb-2">好奇小熊 🐻</h1>
+        <p className="text-xs leading-relaxed text-[#5F5142] font-semibold">
+          给孩子的益智练习馆：拆数字谜题、练专注追踪、玩策略对弈，把每次尝试变成清楚的成长反馈。
         </p>
       </div>
 
-      <div className="hidden lg:block fixed right-10 bottom-10 glass-card p-6 rounded-[32px] shadow-lg max-w-xs border border-white/60 animate-float [animation-delay:1.5s]">
+      <div className="hidden lg:block fixed right-10 bottom-10 bg-white/92 p-6 rounded-3xl shadow-[0_18px_45px_rgba(146,64,14,0.12)] max-w-xs border border-emerald-100">
         <h5 className="font-black text-[#FF9F1C] text-sm flex items-center gap-1.5 mb-2">
           <Sparkles className="text-amber-500 fill-amber-200" size={16} /> 积分魔法盒：
         </h5>
-        <p className="text-xs text-slate-600 leading-relaxed font-semibold">
-          每日打卡可得 20 ~ 120 积分和可爱糖果！在【零食商店】兑换糖果、苹果并喂食陪伴恐龙【小布】增加好感度，能开启神秘探索成就哦！🎁🦖
+        <p className="text-xs text-[#4B5D48] leading-relaxed font-semibold">
+          打卡、游戏和成就都会进入同一套积分反馈。家长能看懂进度，孩子也能知道下一步该做什么。
         </p>
       </div>
 
@@ -306,7 +313,7 @@ export default function App() {
             >
               {muted ? "🔇" : "🔊"}
             </button>
-            <div className="bg-white px-2.5 py-1.5 rounded-full shadow-sm border-b-2 border-slate-200 flex items-center gap-1 text-xs">
+            <div className="bg-white px-2.5 py-1.5 rounded-full shadow-sm border border-slate-200 flex items-center gap-1 text-xs">
               <span className="text-sm select-none">✨</span>
               <span className="font-black text-[#FF9F1C] tracking-tighter text-sm font-sans">{profile.points}</span>
             </div>
@@ -320,10 +327,10 @@ export default function App() {
           <AnimatePresence>
             {notification && (
               <motion.div
-                initial={{ opacity: 0, y: -40, scale: 0.9 }}
+                initial={{ opacity: 0, y: -12, scale: 0.98 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
-                exit={{ opacity: 0, y: -20, scale: 0.9 }}
-                className="absolute top-2 left-4 right-4 z-40 bg-indigo-900/90 text-white text-xs font-bold p-3 rounded-2xl shadow-xl flex items-center justify-between border-2 border-indigo-500 backdrop-blur-xs"
+                exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                className="sticky top-2 z-40 mb-3 bg-[#3D2C7A] text-white text-xs font-bold p-3 rounded-2xl shadow-lg flex items-center justify-between border border-violet-300/50"
                 id="toast-notification-banner"
               >
                 <div className="flex items-center gap-2">
@@ -423,9 +430,9 @@ export default function App() {
               {/* Tab 2: Games Hub Selection */}
               {activeTab === 'games' && (
                 <div className="space-y-5 text-left" id="games-selection-tab">
-                  <div className="bg-white p-4 rounded-3xl border-b-4 border-[#FFE0C2] flex items-center justify-between shadow-md">
+                  <div className="bg-white p-4 rounded-3xl border border-[#FFE0C2] flex items-center justify-between shadow-sm">
                     <div className="flex items-center gap-3">
-                      <span className="text-3xl animate-bounce">🎖️</span>
+                      <span className="text-3xl animate-soft-pop">🎖️</span>
                       <div>
                         <p className="text-xs font-black text-slate-700">今天你要挑战哪个法力关卡？</p>
                         <p className="text-[10px] text-slate-400 font-bold mt-0.5">完成挑战收集星星，购买金币糖果投喂小布！</p>
@@ -437,7 +444,7 @@ export default function App() {
                     {/* Game Item 1: Number Bomb (Pink Theme #FF8E9E) */}
                     <div 
                       onClick={() => setActiveGame('bomb')}
-                      className="bg-white rounded-[28px] p-5 shadow-xl border-b-8 border-[#FF8E9E] flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0.5 active:border-b-2 cursor-pointer"
+                      className="bg-white rounded-3xl p-5 shadow-[0_12px_28px_rgba(244,63,94,0.08)] border border-rose-100 ring-1 ring-rose-50 flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(244,63,94,0.12)] active:translate-y-0 cursor-pointer"
                       id="launch-bomb-game-card"
                     >
                       <div>
@@ -460,7 +467,7 @@ export default function App() {
                     {/* Game Item 2: Klotski Slider (Blue Theme #7AD4FF) */}
                     <div 
                       onClick={() => setActiveGame('klotski')}
-                      className="bg-white rounded-[28px] p-5 shadow-xl border-b-8 border-[#7AD4FF] flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0.5 active:border-b-2 cursor-pointer"
+                      className="bg-white rounded-3xl p-5 shadow-[0_12px_28px_rgba(2,132,199,0.08)] border border-sky-100 ring-1 ring-sky-50 flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(2,132,199,0.12)] active:translate-y-0 cursor-pointer"
                       id="launch-klotski-game-card"
                     >
                       <div>
@@ -483,7 +490,7 @@ export default function App() {
                     {/* Game Item 3: Schulte Table (Purple Theme #A78BFF) */}
                     <div 
                       onClick={() => setActiveGame('schulte')}
-                      className="bg-white rounded-[28px] p-5 shadow-xl border-b-8 border-[#A78BFF] flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0.5 active:border-b-2 cursor-pointer"
+                      className="bg-white rounded-3xl p-5 shadow-[0_12px_28px_rgba(109,40,217,0.08)] border border-violet-100 ring-1 ring-violet-50 flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(109,40,217,0.12)] active:translate-y-0 cursor-pointer"
                       id="launch-schulte-game-card"
                     >
                       <div>
@@ -506,7 +513,7 @@ export default function App() {
                     {/* Game Item 4: Gomoku Cherry (Green Theme #4ADE80) */}
                     <div 
                       onClick={() => setActiveGame('gomoku')}
-                      className="bg-white rounded-[28px] p-5 shadow-xl border-b-8 border-[#4ADE80] flex flex-col justify-between transition-all hover:-translate-y-1 hover:shadow-2xl active:translate-y-0.5 active:border-b-2 cursor-pointer"
+                      className="bg-white rounded-3xl p-5 shadow-[0_12px_28px_rgba(21,128,61,0.08)] border border-emerald-100 ring-1 ring-emerald-50 flex flex-col justify-between transition-all hover:-translate-y-0.5 hover:shadow-[0_16px_34px_rgba(21,128,61,0.12)] active:translate-y-0 cursor-pointer"
                       id="launch-gomoku-game-card"
                     >
                       <div>
@@ -533,18 +540,18 @@ export default function App() {
               {activeTab === 'leaderboard' && (
                 <div className="space-y-4 text-left animate-fade-in" id="leaderboard-view-tab">
                   {/* Header box */}
-                  <div className="bg-amber-50 rounded-[28px] p-4 border-b-4 border-[#FFE0C2] flex items-center justify-between shadow-md relative overflow-hidden">
+                  <div className="bg-[#FFF9F2] rounded-3xl p-4 border border-[#FFE0C2] flex items-center justify-between shadow-sm relative overflow-hidden">
                     <span className="absolute right-[-10px] bottom-[-15px] text-6xl opacity-15">🏆</span>
                     <div>
-                      <h3 className="font-black text-sm text-slate-700 mb-0.5">全区大脑星星王座榜</h3>
-                      <p className="text-[10px] text-slate-500 font-bold leading-relaxed">
+                      <h3 className="font-black text-sm text-[#5C3E00] mb-0.5">全区大脑星星王座榜</h3>
+                      <p className="text-[10px] text-[#8A6A3A] font-bold leading-relaxed">
                         跟身边其他可爱的小探险家一起比拼脑力星星，努力解锁更高的大布喂食等级吧！
                       </p>
                     </div>
                   </div>
 
                   {/* Leader List Card */}
-                  <div className="bg-white rounded-[32px] border-b-8 border-[#7AD4FF] p-4 space-y-2.5 shadow-xl">
+                  <div className="bg-white rounded-3xl border border-sky-100 p-4 space-y-2.5 shadow-[0_14px_34px_rgba(2,132,199,0.08)]">
                     {leaderboard.map((item, idx) => {
                       const rank = idx + 1;
                       const avatarDetail = AVATARS.find(a => a.id === item.avatarId) || AVATARS[0];
@@ -553,9 +560,9 @@ export default function App() {
                       return (
                         <div 
                           key={item.id}
-                          className={`flex items-center justify-between p-3 rounded-2xl transition-all border border-b-4 ${
+                          className={`flex items-center justify-between p-3 rounded-2xl transition-all border ${
                             isMe 
-                              ? 'bg-amber-50 border-amber-300 text-slate-700 shadow-sm scale-102' 
+                              ? 'bg-[#FFF9F2] border-amber-300 text-[#5C3E00] shadow-sm scale-102'
                               : 'bg-slate-50 border-slate-200'
                           }`}
                           id={`leaderboard-row-${rank}`}
@@ -584,7 +591,7 @@ export default function App() {
                           </div>
 
                           {/* Points sum label */}
-                          <div className="bg-white py-1 px-3 rounded-full border border-b-2 border-slate-200 text-xs font-black text-slate-600 font-mono shadow-3xs">
+                          <div className="bg-white py-1 px-3 rounded-full border border-slate-200 text-xs font-black text-slate-600 font-mono shadow-3xs">
                             ⭐ {item.points}
                           </div>
                         </div>
@@ -712,9 +719,9 @@ export default function App() {
               {/* Confetti drops elements */}
               <div className="absolute inset-0 pointer-events-none overflow-hidden rounded-[30px]">
                 {Array.from({ length: 12 }).map((_, idx) => (
-                  <span 
+                      <span
                     key={idx}
-                    className="absolute text-xl select-none animate-bounce"
+                    className="absolute text-xl select-none animate-soft-pop"
                     style={{
                       left: `${Math.random() * 80 + 10}%`,
                       top: `${Math.random() * 50 + 10}%`,
@@ -726,7 +733,7 @@ export default function App() {
                 ))}
               </div>
 
-              <div className="w-20 h-20 bg-gradient-to-tr from-amber-400 to-yellow-500 rounded-full flex items-center justify-center text-4xl border-4 border-white shadow-lg mx-auto mb-4 animate-bounce">
+              <div className="w-20 h-20 bg-gradient-to-tr from-amber-400 to-yellow-500 rounded-full flex items-center justify-center text-4xl border-4 border-white shadow-lg mx-auto mb-4 animate-soft-pop">
                 {(() => {
                   const tL = unlockedAchievementAlert.tier || 1;
                   const tC = getAchievementTierConfig(unlockedAchievementAlert.id, tL);
@@ -752,14 +759,14 @@ export default function App() {
                       </p>
                     </div>
 
-                    <div className="bg-gradient-to-r from-indigo-50 to-pink-50 border border-indigo-100/60 rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 mb-4 text-[10px] font-black text-indigo-900 leading-none">
-                      <span className="text-slate-400 font-bold block">🎁 待领取的进阶大礼袋</span>
+                    <div className="bg-[#FFF9F2] border border-[#FFE0C2] rounded-xl p-3 flex flex-col items-center justify-center gap-1.5 mb-4 text-[10px] font-black text-[#7C4A03] leading-none">
+                      <span className="text-[#8A6A3A] font-bold block">🎁 待领取的进阶大礼袋</span>
                       <div className="flex items-center gap-1.5 mt-0.5 text-rose-600 font-black">
                         <span>⭐+{tC.pointsReward} 星积分</span>
                         <span>+</span>
                         <span>{tC.foodReward.char}{tC.foodReward.name}×{tC.foodReward.count}</span>
                       </div>
-                      <span className="text-[8px] text-indigo-400 font-bold mt-1">(可前往 👤 荣誉墙 手动开启此晋级宝池)</span>
+                      <span className="text-[8px] text-[#B7791F] font-bold mt-1">(可前往 👤 荣誉墙 手动开启此晋级宝池)</span>
                     </div>
                   </>
                 );

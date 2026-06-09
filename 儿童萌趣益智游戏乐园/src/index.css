@@ -18,6 +18,11 @@
     50% { opacity: 1; transform: scale(1.02); }
   }
 
+  @keyframes soft-pop {
+    0%, 100% { transform: translateY(0) scale(1); }
+    45% { transform: translateY(-4px) scale(1.035); }
+  }
+
   @keyframes shine {
     0% { background-position: -200% 0; }
     100% { background-position: 200% 0; }
@@ -35,6 +40,10 @@
 
   .animate-pulse-slow {
     animation: pulse-gentle 6s ease-in-out infinite;
+  }
+
+  .animate-soft-pop {
+    animation: soft-pop 2.8s cubic-bezier(0.16, 1, 0.3, 1) infinite;
   }
 
   .animate-wave-bg {
@@ -83,6 +92,16 @@
   .animate-shake {
     animation: shake 0.4s ease-in-out;
   }
+
+  @media (prefers-reduced-motion: reduce) {
+    .animate-float,
+    .animate-pulse-slow,
+    .animate-wave-bg,
+    .animate-soft-pop,
+    .animate-shake {
+      animation: none !important;
+    }
+  }
 }
 
 /* Custom scrollbar to keep layout clean for kids */
@@ -107,4 +126,3 @@ body {
   margin: 0;
   padding: 0;
 }
-
