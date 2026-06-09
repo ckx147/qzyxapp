@@ -371,15 +371,11 @@ export const GomokuGame: React.FC<GomokuProps> = ({
   };
 
   return (
-    <div className="bg-[#FAF8F5] rounded-[36px] p-5 md:p-6 shadow-[0_20px_50px_rgba(0,0,0,0.06)] border-b-8 border-[#CCC2B4] transition-all relative overflow-hidden" id="gomoku-game-module">
-      {/* Decorative Blur Backdrops */}
-      <div className="absolute top-0 right-0 w-32 h-32 bg-teal-100/10 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-0 w-32 h-32 bg-amber-100/10 rounded-full blur-3xl pointer-events-none" />
-
+    <div className="kid-game-panel p-5 md:p-6 transition-all relative overflow-hidden" id="gomoku-game-module">
       {/* Game Title Bar */}
-      <div className="flex items-center justify-between mb-4 border-b border-dashed border-[#E3DCCE] pb-3 ml-0.5">
+      <div className="kid-game-header flex items-center justify-between mb-4 pb-3 ml-0.5">
         <div className="flex items-center gap-2.5">
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-slate-700 to-slate-950 flex items-center justify-center shadow-md select-none transform rotate-3">
+          <div className="w-10 h-10 rounded-2xl bg-slate-900 flex items-center justify-center shadow-sm select-none transform rotate-3">
             <span className="text-xl font-black text-white">⚫</span>
           </div>
           <div className="text-left leading-tight">
@@ -396,14 +392,14 @@ export const GomokuGame: React.FC<GomokuProps> = ({
         <div className="flex gap-1.5 shrink-0">
           <button 
             onClick={() => setShowInstructions(!showInstructions)}
-            className={`text-slate-500 hover:text-teal-600 bg-white border border-[#E3DCCE] hover:border-teal-300 w-8 h-8 rounded-xl flex items-center justify-center shadow-xs transition-all cursor-pointer ${showInstructions ? 'bg-teal-50 border-teal-200 text-teal-600' : ''}`}
+            className={`text-teal-700 hover:text-teal-800 bg-white border border-[#E3DCCE] hover:border-teal-300 w-8 h-8 rounded-xl flex items-center justify-center shadow-xs transition-all cursor-pointer ${showInstructions ? 'bg-teal-50 border-teal-200 text-teal-700' : ''}`}
             title="查看规则"
           >
             <HelpCircle size={15} />
           </button>
           <button 
             onClick={resetBoard}
-            className="bg-white hover:bg-teal-50 border border-[#E3DCCE] hover:border-teal-300 text-slate-650 hover:text-teal-700 h-8 px-3 rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs transition-all cursor-pointer"
+            className="bg-white hover:bg-teal-50 border border-[#E3DCCE] hover:border-teal-300 text-teal-800 h-8 px-3 rounded-xl text-xs font-bold flex items-center gap-1 shadow-xs transition-all cursor-pointer"
           >
             <RefreshCw size={12} className="shrink-0 animate-spin-slow" /> 重置
           </button>
@@ -411,7 +407,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
       </div>
 
       {showInstructions && (
-        <div className="bg-gradient-to-br from-teal-50/50 to-amber-50/50 border border-teal-100 rounded-2xl p-4 text-[11px] text-slate-600 space-y-1.5 mb-4 text-left shadow-xs animate-fade-in">
+        <div className="kid-game-note p-4 text-[11px] text-slate-600 space-y-1.5 mb-4 text-left animate-fade-in">
           <p className="font-extrabold text-teal-800 flex items-center gap-1">✨ 怎么玩益智五子棋？</p>
           <ul className="space-y-1 list-disc list-inside">
             <li>小朋友扮演 <strong className="text-slate-800 font-extrabold">黑子 (⚫)</strong>，萌宠小布或同伴扮演 <strong className="text-slate-500 font-extrabold">白子 (⚪)</strong>。</li>
@@ -525,7 +521,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
                 isGameOver
                   ? 'bg-slate-900 border-slate-800 text-amber-300 font-extrabold text-[10px] tracking-tight'
                   : isPlayerTurn
-                    ? 'bg-slate-800 border-slate-700 text-white font-extrabold text-[9px] tracking-tight animate-bounce-short'
+                    ? 'bg-slate-800 border-slate-700 text-white font-extrabold text-[9px] tracking-tight animate-soft-pop'
                     : 'bg-white border-slate-200 text-slate-700 font-extrabold text-[9px] tracking-tight animate-pulse'
               }`}>
                 {isGameOver ? (
@@ -566,7 +562,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
 
       {/* Tactile Wood Board Layout Container */}
       <div className="flex flex-col items-center" id="gomoku-board-wrapper">
-        <div className="relative bg-gradient-to-br from-[#DEC09B] via-[#D3A374] to-[#C39364] border-4 border-[#7A5835] border-b-[10px] border-r-6 border-l-6 rounded-[28px] p-4 pb-5 shadow-[0_16px_36px_rgba(92,62,33,0.35),0_4px_10px_rgba(92,62,33,0.15)] flex flex-col items-center select-none">
+        <div className="relative bg-gradient-to-br from-[#DEC09B] via-[#D3A374] to-[#C39364] border-4 border-[#7A5835] border-b-[8px] rounded-[28px] p-4 pb-5 shadow-[0_16px_36px_rgba(92,62,33,0.35),0_4px_10px_rgba(92,62,33,0.15)] flex flex-col items-center select-none">
           {/* Subtle wooden texture watermark overlay */}
           <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_top_right,_var(--tw-gradient-stops))] from-amber-100/10 via-transparent to-red-950/5 rounded-[22px] pointer-events-none" />
           
@@ -621,7 +617,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
                         <div className="absolute top-0.5 left-1 w-1 h-1 bg-white/30 rounded-full" />
                         
                         {isWinning && (
-                          <span className="text-[9px] text-amber-300 animate-bounce block select-none">👑</span>
+                          <span className="text-[9px] text-amber-300 animate-soft-pop block select-none">👑</span>
                         )}
                       </div>
                     )}
@@ -635,7 +631,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
                         <div className="absolute top-0.5 left-1 w-1 h-1 bg-white/60 rounded-full" />
                         
                         {isWinning && (
-                          <span className="text-[9px] text-amber-500 animate-bounce block select-none">👑</span>
+                          <span className="text-[9px] text-amber-500 animate-soft-pop block select-none">👑</span>
                         )}
                       </div>
                     )}
@@ -649,10 +645,10 @@ export const GomokuGame: React.FC<GomokuProps> = ({
 
       {/* Interactive Victory popup drawer */}
       {isGameOver && (
-        <div className="mt-4 bg-gradient-to-b from-white to-amber-50/20 border-2 border-amber-200/80 p-5 rounded-[28px] shadow-xl text-center max-w-xs mx-auto animate-bounce-short">
+        <div className="kid-game-result mt-4 p-5 text-center max-w-xs mx-auto animate-soft-pop">
           {winner === PLAYER_PIECE ? (
             <div>
-              <span className="text-4xl animate-bounce inline-block">👑⚫🏆</span>
+              <span className="text-4xl animate-soft-pop inline-block">👑⚫🏆</span>
               <h4 className="text-[13px] font-black text-rose-600 mt-2">
                 {gameMode === 'ai' ? '大获全胜！黑子 5 连！' : '大喜讯！黑子队连成一线获胜！'}
               </h4>
@@ -662,7 +658,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
             </div>
           ) : winner === AI_PIECE ? (
             <div>
-              <span className="text-4xl animate-bounce inline-block">🦁⚪🏆</span>
+              <span className="text-4xl animate-soft-pop inline-block">🦁⚪🏆</span>
               <h4 className="text-[13px] font-black text-blue-800 mt-2">
                 {gameMode === 'ai' ? '小布棋高一招，白子 5 连！' : '大喜讯！白子队连成一线获胜！'}
               </h4>
@@ -672,14 +668,14 @@ export const GomokuGame: React.FC<GomokuProps> = ({
             </div>
           ) : (
             <div>
-              <span className="text-3xl animate-bounce inline-block">🤝⚫⚪</span>
+              <span className="text-3xl animate-soft-pop inline-block">🤝⚫⚪</span>
               <h4 className="text-[12px] font-black text-slate-755 mt-2">太精彩了！平分秋色！</h4>
               <p className="text-[10px] text-slate-500 font-bold mb-3.5 mt-0.5">双方势均力敌！合作奖励 50 颗星星！</p>
             </div>
           )}
           <button
             onClick={resetBoard}
-            className="w-full bg-gradient-to-b from-teal-400 to-teal-500 hover:from-teal-500 hover:to-teal-600 border-b-4 border-teal-600 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-md active:translate-y-0.5 active:border-b-0 cursor-pointer"
+            className="kid-game-primary w-full bg-teal-500 hover:bg-teal-600 text-white font-black text-xs py-2.5 rounded-xl transition-all active:translate-y-0.5 active:border-b-0 cursor-pointer"
           >
             ⚔️ 马上重开下一局 ⚔️
           </button>

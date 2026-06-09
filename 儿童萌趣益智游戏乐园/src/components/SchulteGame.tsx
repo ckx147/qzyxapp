@@ -194,11 +194,11 @@ export const SchulteGame: React.FC<SchulteProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-[32px] p-5 shadow-xl border-b-8 border-amber-400 transition-all" id="schulte-game-module">
+    <div className="kid-game-panel p-5 transition-all" id="schulte-game-module">
       {/* Game Title */}
-      <div className="flex items-center justify-between mb-4 border-b-2 border-amber-100 pb-3">
+      <div className="kid-game-header flex items-center justify-between mb-4 pb-3">
         <div className="flex items-center gap-2">
-          <span className="text-3xl animate-bounce">👀</span>
+          <span className="text-3xl animate-soft-pop">👀</span>
           <div className="text-left leading-tight">
             <h3 className="font-black text-slate-700 text-sm">舒尔特专注力训练</h3>
             <p className="text-[10px] text-amber-500 font-bold mt-0.5">科学目光搜索，锻炼专注力与视觉广度 ⭐</p>
@@ -215,7 +215,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
           </button>
           <button 
             onClick={() => startSchulteGame(gridSize)}
-            className="bg-[#FFF9F2] hover:bg-amber-100 border border-b-2 border-amber-200 text-amber-700 py-1.5 px-3.5 rounded-full text-xs font-black flex items-center gap-1 transition-all cursor-pointer"
+            className="bg-[#FFF9F2] hover:bg-amber-100 border border-amber-200 text-amber-700 py-1.5 px-3.5 rounded-full text-xs font-black flex items-center gap-1 transition-all cursor-pointer"
           >
             <RotateCcw size={12} /> {isPlaying ? '重来一局' : '开始'}
           </button>
@@ -223,7 +223,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
       </div>
 
       {showInstructions && (
-        <div className="bg-amber-50/75 border border-b-4 border-amber-100 rounded-[24px] p-4 text-[11px] text-slate-600 space-y-1.5 mb-3 text-left">
+        <div className="kid-game-note p-4 text-[11px] text-slate-600 space-y-1.5 mb-3 text-left">
           <p className="font-black text-amber-800">💡 舒尔特训练有什么好处？</p>
           <p>这是经典的视觉专注练习：</p>
           <p>1. 训练时，眼睛尽量聚焦中心，用余光去扫视数字位置。</p>
@@ -263,7 +263,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
               setGridSize(3);
               if (isPlaying) startSchulteGame(3);
             }}
-            className={`flex-1 py-2.5 px-2 rounded-2xl font-black text-[11px] border-b-4 transition-all duration-75 active:translate-y-0.5 active:border-b-0 cursor-pointer ${
+            className={`flex-1 py-2.5 px-2 rounded-2xl font-black text-[11px] border transition-all duration-75 active:translate-y-0.5 cursor-pointer ${
               gridSize === 3 
                 ? 'bg-amber-400 border-amber-500 text-white shadow-xs' 
                 : 'bg-white border text-slate-500 hover:bg-slate-50'
@@ -278,7 +278,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
               setGridSize(4);
               if (isPlaying) startSchulteGame(4);
             }}
-            className={`flex-1 py-2.5 px-2 rounded-2xl font-black text-[11px] border-b-4 transition-all duration-75 active:translate-y-0.5 active:border-b-0 cursor-pointer ${
+            className={`flex-1 py-2.5 px-2 rounded-2xl font-black text-[11px] border transition-all duration-75 active:translate-y-0.5 cursor-pointer ${
               gridSize === 4 
                 ? 'bg-amber-400 border-amber-500 text-white shadow-xs' 
                 : 'bg-white border text-slate-500 hover:bg-slate-50'
@@ -293,7 +293,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
               setGridSize(5);
               if (isPlaying) startSchulteGame(5);
             }}
-            className={`flex-1 py-2.5 px-2 rounded-2xl font-black text-[11px] border-b-4 transition-all duration-75 active:translate-y-0.5 active:border-b-0 cursor-pointer ${
+            className={`flex-1 py-2.5 px-2 rounded-2xl font-black text-[11px] border transition-all duration-75 active:translate-y-0.5 cursor-pointer ${
               gridSize === 5 
                 ? 'bg-amber-500 border-amber-600 text-white shadow-xs' 
                 : 'bg-white border text-slate-500 hover:bg-slate-50'
@@ -339,14 +339,14 @@ export const SchulteGame: React.FC<SchulteProps> = ({
       {/* Main Board */}
       {!isPlaying ? (
         <div className="text-center py-10" id="schulte-ready-screen">
-          <div className="text-6xl mb-4 animate-bounce">⭐🌈</div>
+          <div className="text-6xl mb-4 animate-soft-pop">⭐🌈</div>
           <h4 className="text-sm font-black text-slate-700">火眼金睛大考验</h4>
           <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed mb-6 font-bold">
             将视线聚集在最中间，点击开始，在最快时间内依次找出所有的数字格！
           </p>
           <button
             onClick={() => startSchulteGame(gridSize)}
-            className="bg-gradient-to-r from-[#FFD166] to-[#FF9F1C] border-b-4 border-[#D97706] text-white font-black text-xs py-3.5 px-8 rounded-full shadow-md active:translate-y-0.5 active:border-b-0 duration-100 cursor-pointer animate-pulse"
+            className="kid-game-primary bg-[#FF9F1C] hover:bg-[#F59E0B] text-white font-black text-xs py-3.5 px-8 rounded-full active:translate-y-0.5 active:border-b-0 duration-100 cursor-pointer"
           >
             开启专注力加速器 🚀
           </button>
@@ -354,7 +354,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
       ) : (
         <div className="space-y-4" id="schulte-active-screen">
           {/* Top Panel stats */}
-          <div className="flex items-center justify-between bg-slate-50 py-3 px-4 rounded-2xl border border-b-2 border-slate-200 shadow-inner">
+          <div className="flex items-center justify-between bg-slate-50 py-3 px-4 rounded-2xl border border-slate-200 shadow-inner">
             <div className="flex items-center gap-1.5 text-left">
               <Eye className="text-[#FF9F1C] animate-pulse" size={16} />
               <div className="leading-none">
@@ -385,7 +385,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
           {/* Schulte Grid Block Board */}
           <div className="flex justify-center">
             <div 
-              className="bg-amber-50 p-2.5 rounded-[28px] border-b-8 border-[#FFE0C2] shadow-2xl grid gap-2 justify-center"
+              className="bg-amber-50 p-2.5 rounded-[28px] border-2 border-[#FFE0C2] shadow-[0_14px_28px_rgba(217,119,6,0.14)] grid gap-2 justify-center"
               style={{
                 gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
                 width: gridSize === 5 ? '340px' : gridSize === 4 ? '300px' : '260px',
@@ -403,9 +403,9 @@ export const SchulteGame: React.FC<SchulteProps> = ({
                     key={idx}
                     type="button"
                     onClick={() => handleBlockClick(val, idx)}
-                    className={`rounded-2xl font-black transition-all select-none border-b-4 focus:outline-none flex items-center justify-center cursor-pointer ${
+                    className={`rounded-2xl font-black transition-all select-none border focus:outline-none flex items-center justify-center cursor-pointer ${
                       gridSize === 5 
-                        ? 'text-lg rounded-xl border-b-3' 
+                        ? 'text-lg rounded-xl'
                         : gridSize === 4
                           ? 'text-xl'
                           : 'text-2xl'
@@ -416,7 +416,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
                           ? 'bg-emerald-400 text-white border-emerald-600 scale-105 shadow-inner'
                           : isWrongFlash
                             ? 'bg-rose-500 text-white border-rose-700 scale-105 duration-75'
-                            : 'bg-white hover:bg-amber-50 border-slate-200 text-slate-700 shadow-md active:translate-y-0.5 active:border-b-0'
+                            : 'bg-white hover:bg-amber-50 border-slate-200 text-amber-950 shadow-md active:translate-y-0.5'
                      }`}
                   >
                     {isCorrectClicked ? (
@@ -432,8 +432,8 @@ export const SchulteGame: React.FC<SchulteProps> = ({
 
           {/* Winning Overlay Popup */}
           {isCompleted && (
-            <div className="bg-amber-50/90 border border-b-4 border-amber-200 rounded-[28px] p-5 shadow-lg text-center max-w-sm mx-auto">
-              <div className="inline-block bg-amber-400 border border-b-2 border-amber-500 text-white rounded-full p-2.5 mb-2 animate-bounce shadow-sm">
+            <div className="kid-game-result p-5 text-center max-w-sm mx-auto">
+              <div className="inline-block bg-amber-400 border border-amber-500 text-white rounded-full p-2.5 mb-2 animate-soft-pop shadow-sm">
                 <Award size={22} />
               </div>
               <h4 className="text-sm font-black text-amber-950">专注大闯关成功！</h4>
@@ -446,7 +446,7 @@ export const SchulteGame: React.FC<SchulteProps> = ({
               <div className="flex gap-2 justify-center max-w-xs mx-auto">
                 <button
                   onClick={() => startSchulteGame(gridSize)}
-                  className="flex-1 bg-amber-500 hover:bg-amber-600 border-b-4 border-amber-600 text-white font-black text-xs py-2.5 rounded-xl text-center shadow-xs cursor-pointer"
+                  className="kid-game-primary flex-1 bg-amber-500 hover:bg-amber-600 text-white font-black text-xs py-2.5 rounded-xl text-center cursor-pointer"
                 >
                   再测一次
                 </button>

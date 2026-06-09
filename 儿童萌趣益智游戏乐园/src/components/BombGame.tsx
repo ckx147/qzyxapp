@@ -533,10 +533,10 @@ export const BombGame: React.FC<BombGameProps> = ({
   };
 
   return (
-    <div className={`bg-white rounded-[32px] p-5 shadow-xl border-b-8 border-orange-400 transition-all ${shakeScreen ? 'animate-bounce' : ''}`} id="bomb-game-module">
-      <div className="flex items-center justify-between mb-4 border-b-2 border-orange-100 pb-3">
+    <div className={`kid-game-panel p-5 transition-all ${shakeScreen ? 'animate-shake' : ''}`} id="bomb-game-module">
+      <div className="kid-game-header flex items-center justify-between mb-4 pb-3">
         <div className="flex items-center gap-2">
-          <span className="text-3xl animate-bounce">💣</span>
+          <span className="text-3xl animate-soft-pop">💣</span>
           <div className="text-left leading-tight">
             <h3 className="font-black text-slate-700 text-sm">亲子数字炸弹大对决</h3>
             <p className="text-[10px] text-orange-500 font-bold mt-0.5">支持多人和爸爸妈妈一起玩的排雷派对游戏！🎈</p>
@@ -544,7 +544,7 @@ export const BombGame: React.FC<BombGameProps> = ({
         </div>
         <button 
           onClick={startNewGame}
-          className="bg-orange-50 hover:bg-orange-100 border border-b-2 border-orange-200 text-orange-700 py-1.5 px-3.5 rounded-full text-xs font-black flex items-center gap-1 transition-all cursor-pointer"
+          className="bg-orange-50 hover:bg-orange-100 border border-orange-200 text-orange-700 py-1.5 px-3.5 rounded-full text-xs font-black flex items-center gap-1 transition-all cursor-pointer"
         >
           <RefreshCw size={12} /> 重置首局
         </button>
@@ -553,7 +553,7 @@ export const BombGame: React.FC<BombGameProps> = ({
       {/* Screen Game Stage routers */}
       {gameStage === 'welcome' && (
         <div className="text-center py-8 px-4 animate-fade-in" id="bomb-intro-view">
-          <div className="text-6xl mb-4 animate-bounce">💣💥</div>
+          <div className="text-6xl mb-4 animate-soft-pop">💣💥</div>
           <h4 className="text-sm font-black text-slate-700 mb-2">安全预警！数字炸弹已安放</h4>
           <p className="text-xs text-slate-500 max-w-sm mx-auto leading-relaxed mb-6 font-bold">
             在数字 <span className="text-orange-500 font-black px-1">1 ~ 100</span> 中隐藏着一个会让炸弹爆炸的秘密数字！排雷队轮流拆雷，输入数字后边界会越来越窄，猜中秘密数字的一方就会引发炸弹爆炸哦！
@@ -617,7 +617,7 @@ export const BombGame: React.FC<BombGameProps> = ({
                       onClick={() => {
                         setPlayers(prev => [...prev, { name: preset.name, isAi: preset.isAi, avatar: preset.avatar }]);
                       }}
-                      className="bg-white border border-slate-200 hover:bg-orange-50 hover:border-orange-200 hover:text-orange-700 font-bold text-[10px] py-1 px-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all text-slate-600 flex items-center gap-1 cursor-pointer shadow-3xs"
+                      className="bg-white border border-slate-200 hover:bg-orange-50 hover:border-orange-200 text-orange-800 font-bold text-[10px] py-1 px-2.5 rounded-xl disabled:opacity-40 disabled:cursor-not-allowed transition-all flex items-center gap-1 cursor-pointer shadow-3xs"
                     >
                       + {preset.name}
                     </button>
@@ -737,14 +737,14 @@ export const BombGame: React.FC<BombGameProps> = ({
                   setPlayers(prev => [...prev, { name: newPlayerName.trim(), isAi: false, avatar: selectedAvatarId }]);
                   setNewPlayerName('');
                 }}
-                className="bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-black text-xs px-4 py-1.5 rounded-xl border-b-2 border-orange-700 shadow-3xs cursor-pointer flex items-center gap-1 transition-all"
+                className="bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white font-black text-xs px-4 py-1.5 rounded-xl border border-orange-600 shadow-3xs cursor-pointer flex items-center gap-1 transition-all"
               >
                 <Plus size={12} /> 自定义添加成员
               </button>
             </div>
           </div>
 
-          <div className="bg-[#FFF9F2] p-4 rounded-[24px] border-b-4 border border-[#FFE0C2] mb-6 text-left max-w-md mx-auto">
+          <div className="kid-game-note p-4 mb-6 text-left max-w-md mx-auto">
             <h5 className="text-xs font-black text-[#D97706] flex items-center gap-1.5 mb-1">
               <Zap size={14} className="text-amber-500 fill-amber-300" /> 萌趣运动规则：
             </h5>
@@ -755,7 +755,7 @@ export const BombGame: React.FC<BombGameProps> = ({
 
           <button
             onClick={startNewGame}
-            className="bg-gradient-to-r from-[#FFD166] to-[#FF9F1C] border-b-4 border-[#D97706] text-white font-black text-sm py-3.5 px-8 rounded-full shadow-md active:translate-y-0.5 active:border-b-0 duration-150 cursor-pointer flex items-center gap-2 mx-auto animate-bounce-short"
+            className="kid-game-primary bg-[#FF9F1C] hover:bg-[#F59E0B] text-white font-black text-sm py-3.5 px-8 rounded-full active:translate-y-0.5 active:border-b-0 duration-150 cursor-pointer flex items-center gap-2 mx-auto animate-soft-pop"
           >
             <Play size={18} fill="currentColor" /> 开启拆雷派对！
           </button>
@@ -785,7 +785,7 @@ export const BombGame: React.FC<BombGameProps> = ({
           </div>
 
           {/* Main big display of live ranges */}
-          <div className="bg-[#FFF9F2] border border-b-4 border-[#FFE0C2] rounded-[32px] p-5 shadow-inner text-center relative overflow-hidden">
+          <div className="kid-game-note p-5 text-center relative overflow-hidden">
             <div className="absolute top-1.5 left-3 flex gap-1 text-[9px] text-[#D97706] font-black uppercase tracking-wider">当前排雷安全边界</div>
             <div className="flex items-center justify-around py-3">
               <div className="text-center">
@@ -810,7 +810,7 @@ export const BombGame: React.FC<BombGameProps> = ({
                 </div>
               ) : (
                 <div className="flex items-center gap-2.5 text-indigo-700 w-full justify-center">
-                  <PlayerAvatar id={players[activePlayerIndex]?.avatar} className="w-8 h-8 animate-bounce" />
+                  <PlayerAvatar id={players[activePlayerIndex]?.avatar} className="w-8 h-8 animate-soft-pop" />
                   <span className="font-extrabold text-indigo-800">
                     👉 轮到 【{players[activePlayerIndex]?.name}】 排除！在下方按键盘输入
                   </span>
@@ -839,7 +839,7 @@ export const BombGame: React.FC<BombGameProps> = ({
                     key={k}
                     onClick={() => pressKey(k)}
                     disabled={players[activePlayerIndex]?.isAi || aiIsThinking}
-                    className="bg-white border-b-4 active:translate-y-0.5 active:border-b-0 border-orange-200 disabled:opacity-50 text-[#FF6B6B] font-black py-2.5 rounded-xl shadow-xs text-lg transition-all cursor-pointer flex items-center justify-center font-mono"
+                    className="bg-white border active:translate-y-0.5 border-orange-200 disabled:opacity-50 text-[#FF6B6B] font-black py-2.5 rounded-xl shadow-xs text-lg transition-all cursor-pointer flex items-center justify-center font-mono"
                   >
                     {k}
                   </button>
@@ -850,7 +850,7 @@ export const BombGame: React.FC<BombGameProps> = ({
               <button
                 onClick={handlePlayerSubmit}
                 disabled={players[activePlayerIndex]?.isAi || currentGuess === '' || aiIsThinking}
-                className="w-full bg-[#FF6B6B] disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-400 disabled:cursor-not-allowed hover:bg-[#FF8E9E] border-b-4 border-[#E11D48] text-white font-black py-3 rounded-2xl shadow-md cursor-pointer transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wide duration-75 active:translate-y-0.5 active:border-b-0"
+                className="kid-game-primary w-full bg-[#FF6B6B] disabled:from-slate-200 disabled:to-slate-300 disabled:text-slate-400 disabled:cursor-not-allowed hover:bg-[#FF8E9E] text-white font-black py-3 rounded-2xl cursor-pointer transition-all flex items-center justify-center gap-2 text-xs uppercase tracking-wide duration-75 active:translate-y-0.5 active:border-b-0"
                 id="btn-guess-submit"
               >
                 <ShieldAlert size={14} /> 给 {players[activePlayerIndex]?.name} 排除高危数字 ({currentGuess || '?'})
@@ -872,7 +872,7 @@ export const BombGame: React.FC<BombGameProps> = ({
                   history.map((h, i) => (
                     <div 
                       key={i}
-                      className={`p-2 rounded-xl text-xs flex items-center justify-between border border-b-2 ${
+                      className={`p-2 rounded-xl text-xs flex items-center justify-between border ${
                         !h.isAi 
                           ? 'bg-[#FFF1F2] border-[#FFE4E6] text-rose-950' 
                           : 'bg-[#F0F9FF] border-[#E0F2FE] text-sky-950'
@@ -898,7 +898,7 @@ export const BombGame: React.FC<BombGameProps> = ({
 
       {/* EXPLODED GAME OVER STAGE */}
       {gameStage === 'exploded' && selectedPenalty && (
-        <div className="text-center py-6 px-4 bg-rose-50 border-4 border-rose-200 rounded-[32px] shadow-sm max-w-sm mx-auto animate-bounce-short" id="bomb-exploded-panel">
+        <div className="kid-game-result text-center py-6 px-4 max-w-sm mx-auto animate-soft-pop" id="bomb-exploded-panel">
           <motion.div 
             animate={{ scale: [1, 1.4, 0.9, 1.2, 1], rotate: [0, -15, 15, 0] }}
             transition={{ duration: 0.8 }}
@@ -912,7 +912,7 @@ export const BombGame: React.FC<BombGameProps> = ({
             排除到了神秘秘密数字 <span className="bg-rose-500 text-white rounded-full px-2 py-0.5 font-mono text-xs font-bold">{secretBomb}</span>！
           </p>
 
-          <div className="bg-white rounded-2xl border border-b-4 border-rose-200 p-5 shadow-inner mb-6 mx-auto flex flex-col items-center">
+          <div className="bg-white rounded-2xl border border-rose-200 p-5 shadow-inner mb-6 mx-auto flex flex-col items-center">
             <PlayerAvatar id={explodingPlayer?.avatar || 'baby_boy'} className="w-16 h-16 mb-2.5 shadow-sm" />
             <span className="inline-block bg-rose-100 text-rose-700 font-extrabold text-[10px] px-3 py-1 rounded-full mb-3">
               🍭 亲子趣味暖身小惩罚
@@ -929,7 +929,7 @@ export const BombGame: React.FC<BombGameProps> = ({
           <div className="flex flex-col gap-2 mx-auto">
             <button
               onClick={completeExplodePenalty}
-              className="w-full bg-[#FF6B6B] hover:bg-[#FF8E9E] border-b-4 border-[#E11D48] text-white font-black py-3.5 rounded-2xl shadow-md active:translate-y-0.5 active:border-b-0 transition-all text-xs cursor-pointer"
+              className="kid-game-primary w-full bg-[#FF6B6B] hover:bg-[#FF8E9E] text-white font-black py-3.5 rounded-2xl active:translate-y-0.5 active:border-b-0 transition-all text-xs cursor-pointer"
             >
               🙋 我已经完成了有趣的运动惩罚！
             </button>
@@ -945,14 +945,14 @@ export const BombGame: React.FC<BombGameProps> = ({
 
       {/* GAME SURVIVED CLEARED STAGE */}
       {gameStage === 'cleared' && (
-        <div className="text-center py-8 px-4 bg-emerald-50 border-4 border-emerald-200 rounded-[32px] shadow-sm max-w-sm mx-auto" id="bomb-cleared-panel">
-          <div className="text-7xl mb-3 animate-bounce">🏆⭐🦖</div>
+        <div className="kid-game-result text-center py-8 px-4 max-w-sm mx-auto" id="bomb-cleared-panel">
+          <div className="text-7xl mb-3 animate-soft-pop">🏆⭐🦖</div>
           <h4 className="text-[#059669] text-base font-black mb-1">🎉 耶！雷区大成功排除！</h4>
           <p className="text-xs font-bold text-slate-500 mb-4">
             太空安全大胜利！智能队友 <span className="text-emerald-600 font-extrabold">{explodingPlayer?.name || '小布'}</span> 踩中了最后的炸弹数字 <span className="bg-emerald-500 text-white font-bold rounded-full px-2 py-0.5 font-mono text-sm">{secretBomb}</span>。全体人类小分队安全幸存！🏆
           </p>
 
-          <div className="bg-white rounded-2xl border border-b-4 border-emerald-200 p-4 shadow-inner mb-6 mx-auto flex flex-col items-center animate-fade-in">
+          <div className="bg-white rounded-2xl border border-emerald-200 p-4 shadow-inner mb-6 mx-auto flex flex-col items-center animate-fade-in">
             <PlayerAvatar id={explodingPlayer?.avatar || 'dino'} className="w-16 h-16 mb-2.5 shadow-sm" />
             <p className="text-slate-600 text-xs font-black mb-2 text-center">🎉 智能系统正在接受可爱运动惩罚：</p>
             <p className="text-xs font-black text-[#D97706] leading-relaxed mb-4 text-center">
@@ -974,7 +974,7 @@ export const BombGame: React.FC<BombGameProps> = ({
           <div className="flex items-center gap-3 justify-center mx-auto">
             <button
               onClick={startNewGame}
-              className="flex-1 bg-emerald-500 hover:bg-emerald-600 border-b-4 border-emerald-600 text-white font-black py-3.5 rounded-2xl shadow-sm active:translate-y-0.5 active:border-b-0 transition-all text-xs cursor-pointer"
+              className="kid-game-primary flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black py-3.5 rounded-2xl active:translate-y-0.5 active:border-b-0 transition-all text-xs cursor-pointer"
             >
               继续挑战
             </button>

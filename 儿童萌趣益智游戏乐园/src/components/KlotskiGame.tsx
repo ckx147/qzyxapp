@@ -236,11 +236,11 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
   };
 
   return (
-    <div className="bg-white rounded-[32px] p-5 shadow-xl border-b-8 border-emerald-400 transition-all" id="klotski-game-module">
+    <div className="kid-game-panel p-5 transition-all" id="klotski-game-module">
       {/* Game Header */}
-      <div className="flex items-center justify-between mb-4 border-b-2 border-emerald-100 pb-3">
+      <div className="kid-game-header flex items-center justify-between mb-4 pb-3">
         <div className="flex items-center gap-2">
-          <span className="text-3xl animate-bounce">🧩</span>
+          <span className="text-3xl animate-soft-pop">🧩</span>
           <div className="text-left leading-tight">
             <h3 className="font-black text-slate-700 text-sm">数字华容道</h3>
             <p className="text-[10px] text-emerald-500 font-bold mt-0.5">锻炼空间统筹和逻辑大脑 🦁</p>
@@ -263,7 +263,7 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
               soundSynth.playClick();
               generateSolvableBoard(gridSize);
             }}
-            className="bg-[#E8F8F0] hover:bg-emerald-100 border border-b-2 border-emerald-200 text-emerald-700 py-1.5 px-3.5 rounded-full text-xs font-black flex items-center gap-1 transition-all cursor-pointer"
+            className="bg-[#E8F8F0] hover:bg-emerald-100 border border-emerald-200 text-emerald-700 py-1.5 px-3.5 rounded-full text-xs font-black flex items-center gap-1 transition-all cursor-pointer"
           >
             <RotateCcw size={12} /> {isPlaying ? '重新洗牌' : '初始化'}
           </button>
@@ -271,7 +271,7 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
       </div>
 
       {showInstructions && (
-        <div className="bg-emerald-50/75 border border-b-4 border-emerald-100 rounded-[24px] p-4 text-[11px] text-slate-600 space-y-1.5 mb-3 text-left">
+        <div className="kid-game-note p-4 text-[11px] text-slate-600 space-y-1.5 mb-3 text-left">
           <p className="font-black text-emerald-800">💡 怎么玩数字华容道？</p>
           <p>1. <strong>滑动数字或直接点按数字</strong>，就可以把它滑进相邻的空白格中。</p>
           <p>2. 最终目标是把数字排列整齐，3x3 从左到右依次为 <strong className="text-emerald-600 font-black font-mono">1、2、3、4、5、6、7、8</strong>，最后一格空出来。</p>
@@ -309,7 +309,7 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
             setGridSize(3);
             if (isPlaying) generateSolvableBoard(3);
           }}
-          className={`flex-1 py-2.5 px-3.5 rounded-2xl font-black text-xs border-b-4 transition-all duration-75 active:translate-y-0.5 active:border-b-0 cursor-pointer ${
+          className={`flex-1 py-2.5 px-3.5 rounded-2xl font-black text-xs border transition-all duration-75 active:translate-y-0.5 cursor-pointer ${
             gridSize === 3 
               ? 'bg-emerald-400 border-emerald-500 text-white shadow-xs' 
               : 'bg-white border text-slate-500 hover:bg-slate-50'
@@ -324,7 +324,7 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
             setGridSize(4);
             if (isPlaying) generateSolvableBoard(4);
           }}
-          className={`flex-1 py-2.5 px-3.5 rounded-2xl font-black text-xs border-b-4 transition-all duration-75 active:translate-y-0.5 active:border-b-0 cursor-pointer ${
+          className={`flex-1 py-2.5 px-3.5 rounded-2xl font-black text-xs border transition-all duration-75 active:translate-y-0.5 cursor-pointer ${
             gridSize === 4 
               ? 'bg-emerald-400 border-emerald-500 text-white shadow-xs' 
               : 'bg-white border text-slate-500 hover:bg-slate-50'
@@ -338,14 +338,14 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
       {/* Main Playing Interface */}
       {!isPlaying ? (
         <div className="text-center py-10" id="klotski-ready-screen">
-          <div className="text-6xl mb-4 animate-bounce">🖐️🧮</div>
+          <div className="text-6xl mb-4 animate-soft-pop">🖐️🧮</div>
           <h4 className="text-sm font-black text-slate-700">准备好了吗？</h4>
           <p className="text-xs text-slate-400 max-w-xs mx-auto leading-relaxed mb-6 font-bold">
             这是一次绝佳的空间逻辑和数字感知力锻炼！移动滑块排好序，激活大脑魔法。
           </p>
           <button
             onClick={() => generateSolvableBoard(gridSize)}
-            className="bg-gradient-to-r from-emerald-400 to-teal-500 border-b-4 border-emerald-600 text-white font-black text-xs py-3.5 px-8 rounded-full shadow-md active:translate-y-0.5 active:border-b-0 duration-100 cursor-pointer"
+            className="kid-game-primary bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs py-3.5 px-8 rounded-full active:translate-y-0.5 active:border-b-0 duration-100 cursor-pointer"
           >
             打乱木块，立即开玩！
           </button>
@@ -353,7 +353,7 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
       ) : (
         <div className="space-y-4" id="klotski-active-screen">
           {/* Performance display */}
-          <div className="flex items-center justify-around bg-slate-50 py-3 px-4 rounded-2xl border border-b-2 border-slate-200 shadow-inner">
+          <div className="flex items-center justify-around bg-slate-50 py-3 px-4 rounded-2xl border border-slate-200 shadow-inner">
             <div className="flex items-center gap-1.5">
               <FileDigit className="text-teal-500" size={16} />
               <div className="text-left leading-none">
@@ -386,7 +386,7 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
           {/* Wooden puzzle stage board */}
           <div className="flex justify-center py-1">
             <div 
-              className="bg-[#54250C] border-b-8 border-t border-[#301103] p-3 rounded-[24px] shadow-[0_12px_32px_rgba(0,0,0,0.2)] grid gap-2 justify-center select-none"
+              className="bg-[#54250C] border-2 border-[#301103] p-3 rounded-[24px] shadow-[0_12px_32px_rgba(0,0,0,0.2),inset_0_2px_8px_rgba(255,255,255,0.08)] grid gap-2 justify-center select-none"
               style={{
                 gridTemplateColumns: `repeat(${gridSize}, minmax(0, 1fr))`,
                 width: gridSize === 3 ? '236px' : '284px',
@@ -431,8 +431,8 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
 
           {/* Settle win layout overlay inside */}
           {isCompleted && (
-            <div className="bg-emerald-50/90 rounded-[28px] p-5 border border-b-4 border-emerald-200 shadow-lg text-center max-w-sm mx-auto">
-              <div className="inline-block bg-amber-400 border border-b-2 border-amber-500 text-white rounded-full p-2.5 mb-2 animate-bounce shadow-sm">
+            <div className="kid-game-result p-5 text-center max-w-sm mx-auto">
+              <div className="inline-block bg-amber-400 border border-amber-500 text-white rounded-full p-2.5 mb-2 animate-soft-pop shadow-sm">
                 <Trophy size={20} />
               </div>
               <h4 className="text-sm font-black text-emerald-950">恭喜你！成功解开！</h4>
@@ -442,7 +442,7 @@ export const KlotskiGame: React.FC<KlotskiProps> = ({
               <div className="flex gap-2 justify-center max-w-xs mx-auto">
                 <button
                   onClick={() => generateSolvableBoard(gridSize)}
-                  className="flex-1 bg-emerald-500 hover:bg-emerald-600 border-b-4 border-emerald-600 text-white font-black text-xs py-2.5 rounded-xl transition-all shadow-sm cursor-pointer"
+                  className="kid-game-primary flex-1 bg-emerald-500 hover:bg-emerald-600 text-white font-black text-xs py-2.5 rounded-xl transition-all cursor-pointer"
                 >
                   再跑一局
                 </button>
