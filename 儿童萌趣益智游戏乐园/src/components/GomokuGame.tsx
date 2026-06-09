@@ -3,12 +3,22 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { RotateCcw, HelpCircle, User, Award, RefreshCw, Zap } from 'lucide-react';
 import { UserProfile, GameRecord, Achievement } from '../types';
 import { UserAvatar } from './UserAvatar';
 import { AVATARS } from '../utils/gameHelpers';
 import { soundSynth } from '../utils/audio';
+import {
+  GOMOKU_AI_PIECE,
+  GOMOKU_BOARD_SIZE,
+  GOMOKU_DRAW,
+  GOMOKU_EMPTY_CELL,
+  GOMOKU_PLAYER_PIECE,
+  checkGomokuDraw,
+  checkGomokuWin,
+  createEmptyGomokuBoard,
+} from '../utils/gomokuRules';
 
 interface GomokuProps {
   profile: UserProfile;
@@ -19,10 +29,11 @@ interface GomokuProps {
   onNotification: (text: string, icon: string) => void;
 }
 
-const BOARD_SIZE = 11; // 11x11 fits mobile frame incredibly well
-const EMPTY_CELL = 0;
-const PLAYER_PIECE = 1; // Black Stone ⚫
-const AI_PIECE = 2; // White Stone ⚪
+const BOARD_SIZE = GOMOKU_BOARD_SIZE; // 11x11 fits mobile frame incredibly well
+const EMPTY_CELL = GOMOKU_EMPTY_CELL;
+const PLAYER_PIECE = GOMOKU_PLAYER_PIECE; // Black Stone
+const AI_PIECE = GOMOKU_AI_PIECE; // White Stone
+const DRAW_RESULT = GOMOKU_DRAW;
 
 export const GomokuGame: React.FC<GomokuProps> = ({
   profile,
@@ -40,6 +51,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
   const [showInstructions, setShowInstructions] = useState(false);
   const [aiLevel, setAiLevel] = useState<'easy' | 'smart'>('smart');
   const [gameMode, setGameMode] = useState<'ai' | 'pvp'>('ai');
+  const hasSettledGameRef = useRef(false);
 
   // Win line coordinate for highlight
   const [winningCells, setWinningCells] = useState<[number, number][]>([]);
@@ -51,10 +63,11 @@ export const GomokuGame: React.FC<GomokuProps> = ({
   }, [gameMode]);
 
   const resetBoard = () => {
-    const emptyBoard = Array(BOARD_SIZE).fill(null).map(() => Array(BOARD_SIZE).fill(EMPTY_CELL));
+    const emptyBoard = createEmptyGomokuBoard(BOARD_SIZE);
     setBoard(emptyBoard);
     setIsGameOver(false);
     setWinner(null);
+    hasSettledGameRef.current = false;
     setCurrentTurn('player');
     setAiIsThinking(false);
     setWinningCells([]);
@@ -90,7 +103,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
       if (checkWin(row, col, PLAYER_PIECE, newBoard)) {
         handleGameOver(PLAYER_PIECE);
       } else if (checkDraw(newBoard)) {
-        handleGameOver(3); // Draw
+        handleGameOver(DRAW_RESULT);
       } else {
         setCurrentTurn('ai');
       }
@@ -104,7 +117,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
       if (checkWin(row, col, activePiece, newBoard)) {
         handleGameOver(activePiece);
       } else if (checkDraw(newBoard)) {
-        handleGameOver(3); // Draw
+        handleGameOver(DRAW_RESULT);
       } else {
         setCurrentTurn(currentTurn === 'player' ? 'ai' : 'player');
       }
@@ -112,46 +125,15 @@ export const GomokuGame: React.FC<GomokuProps> = ({
   };
 
   const checkDraw = (gBoard: number[][]) => {
-    return gBoard.every(row => row.every(cell => cell !== EMPTY_CELL));
+    return checkGomokuDraw(gBoard);
   };
 
   // 5-in-a-row direction searcher
   const checkWin = (row: number, col: number, piece: number, checkBoard: number[][]): boolean => {
-    const directions = [
-      [0, 1],   // horizontal
-      [1, 0],   // vertical
-      [1, 1],   // diagonal down-right
-      [1, -1]   // diagonal down-left
-    ];
-
-    for (const [dr, dc] of directions) {
-      let count = 1;
-      const cells: [number, number][] = [[row, col]];
-
-      // Positive side searching
-      let r = row + dr;
-      let c = col + dc;
-      while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && checkBoard[r][c] === piece) {
-        count++;
-        cells.push([r, c]);
-        r += dr;
-        c += dc;
-      }
-
-      // Negative side searching
-      r = row - dr;
-      c = col - dc;
-      while (r >= 0 && r < BOARD_SIZE && c >= 0 && c < BOARD_SIZE && checkBoard[r][c] === piece) {
-        count++;
-        cells.push([r, c]);
-        r -= dr;
-        c -= dc;
-      }
-
-      if (count >= 5) {
-        setWinningCells(cells);
-        return true;
-      }
+    const result = checkGomokuWin(row, col, piece, checkBoard);
+    if (result.hasWin) {
+      setWinningCells(result.cells);
+      return true;
     }
     return false;
   };
@@ -202,7 +184,7 @@ export const GomokuGame: React.FC<GomokuProps> = ({
     if (checkWin(r, c, AI_PIECE, newBoard)) {
       handleGameOver(AI_PIECE);
     } else if (checkDraw(newBoard)) {
-      handleGameOver(3);
+      handleGameOver(DRAW_RESULT);
     } else {
       setCurrentTurn('player');
     }
@@ -296,6 +278,9 @@ export const GomokuGame: React.FC<GomokuProps> = ({
   };
 
   const handleGameOver = (finalWinner: number) => {
+    if (hasSettledGameRef.current) return;
+    hasSettledGameRef.current = true;
+
     setIsGameOver(true);
     setWinner(finalWinner);
 

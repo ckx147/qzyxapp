@@ -198,7 +198,10 @@ async function testGomoku(page) {
 
   await page.waitForSelector('text=黑子队连成一线获胜', { timeout: 10000 });
   const after = (await readProfile(page)).points;
-  return { before, after, delta: after - before };
+  await page.locator('#cell-2-8').click({ force: true });
+  await page.waitForTimeout(200);
+  const afterPostGameClick = (await readProfile(page)).points;
+  return { before, after, afterPostGameClick, delta: after - before, postGameDelta: afterPostGameClick - after };
 }
 
 async function gomokuPieceCount(page) {
@@ -238,6 +241,51 @@ async function testGomokuWhiteWin(page) {
   await page.waitForSelector('text=白子队连成一线获胜', { timeout: 15000 });
   const after = (await readProfile(page)).points;
   return { before, after, delta: after - before };
+}
+
+async function testGomokuAiPlayerWin(page) {
+  await page.evaluate(() => localStorage.clear());
+  await page.reload({ waitUntil: 'networkidle' });
+  await closeBlockingModals(page);
+  await openGame(page, '#launch-gomoku-game-card');
+  await page.waitForSelector('#gomoku-game-module');
+  await closeBlockingModals(page);
+  await page.locator('#btn-gomoku-easy').click();
+  await setRandomQueue(page, [
+    0, 0.99,
+    0, 0.99,
+    0, 0.99,
+    0, 0.99,
+  ]);
+
+  const before = (await readProfile(page)).points;
+  const playerMoves = [
+    [0, 0],
+    [0, 1],
+    [0, 2],
+    [0, 3],
+    [0, 4],
+  ];
+
+  for (let index = 0; index < playerMoves.length; index++) {
+    const [row, col] = playerMoves[index];
+    const beforeMoveCount = await gomokuPieceCount(page);
+    await page.locator(`#cell-${row}-${col}`).click({ force: true });
+    await waitForPieceCount(page, beforeMoveCount + 1);
+
+    if (index < playerMoves.length - 1) {
+      await waitForPieceCount(page, beforeMoveCount + 2);
+    }
+  }
+
+  await page.waitForSelector('text=大获全胜', { timeout: 15000 });
+  await restoreRandom(page);
+
+  const after = (await readProfile(page)).points;
+  await page.locator('#cell-2-8').click({ force: true });
+  await page.waitForTimeout(200);
+  const afterPostGameClick = (await readProfile(page)).points;
+  return { before, after, afterPostGameClick, delta: after - before, postGameDelta: afterPostGameClick - after };
 }
 
 async function testAchievementClaimOnce(page) {
@@ -306,6 +354,7 @@ try {
     schulte: await testSchulte(page),
     gomoku: await testGomoku(page),
     gomokuWhiteWin: await testGomokuWhiteWin(page),
+    gomokuAiPlayerWin: await testGomokuAiPlayerWin(page),
     achievementClaim: await testAchievementClaimOnce(page),
   };
 
@@ -318,6 +367,7 @@ try {
     schulte: 60,
     gomoku: 50,
     gomokuWhiteWin: 50,
+    gomokuAiPlayerWin: 100,
   };
 
   for (const [game, delta] of Object.entries(expected)) {
@@ -328,6 +378,13 @@ try {
 
   if (result.achievementClaim.firstDelta !== 50) {
     throw new Error(`Expected first achievement claim to add 50 points, got ${result.achievementClaim.firstDelta}`);
+  }
+
+  if (result.gomoku.postGameDelta !== 0 || result.gomokuAiPlayerWin.postGameDelta !== 0) {
+    throw new Error(`Gomoku allowed post-game duplicate scoring: ${JSON.stringify({
+      pvp: result.gomoku,
+      ai: result.gomokuAiPlayerWin,
+    })}`);
   }
 
   if (result.achievementClaim.secondDelta !== 0 || result.achievementClaim.nextTier !== 2 || result.achievementClaim.unlockedAfterClaim) {
