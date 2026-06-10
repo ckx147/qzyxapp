@@ -2,6 +2,8 @@ import { Achievement, CheckInState, LeaderboardItem, UserProfile } from '../type
 import { readStorageJson, storageKeys, writeStorageJson } from './gameStorage';
 import { INITIAL_ACHIEVEMENTS, INITIAL_CHECKIN_STATE, INITIAL_PROFILE } from './gameHelpers';
 import { loadLocalLeaderboard, syncLeaderboard as syncLocalLeaderboard } from './leaderboardService';
+import { createCloudGameDataPort } from './cloudGameDataPort';
+import { createWechatCloudFunctionCaller, WechatGlobalLike } from './wechatCloudAdapter';
 
 export { cloudFunctionNames, createCloudGameDataPort } from './cloudGameDataPort';
 
@@ -67,7 +69,28 @@ const localGameDataPort: GameDataPort = {
   },
 };
 
-const activeGameDataPort = localGameDataPort;
+interface GameDataPortSelectionOptions {
+  useWechatCloud?: boolean;
+  wxLike?: WechatGlobalLike;
+}
+
+function isWechatCloudDataEnabled(): boolean {
+  const meta = import.meta as ImportMeta & { env?: Record<string, string | undefined> };
+  return meta.env?.VITE_USE_WECHAT_CLOUD === 'true';
+}
+
+export function resolveGameDataPort(options: GameDataPortSelectionOptions = {}): GameDataPort {
+  if (!options.useWechatCloud) return localGameDataPort;
+
+  const callWechatCloudFunction = createWechatCloudFunctionCaller(options.wxLike);
+  if (!callWechatCloudFunction) return localGameDataPort;
+
+  return createCloudGameDataPort(callWechatCloudFunction);
+}
+
+const activeGameDataPort = resolveGameDataPort({
+  useWechatCloud: isWechatCloudDataEnabled(),
+});
 
 export function loadGameState(): Promise<GameState> {
   return activeGameDataPort.loadGameState();

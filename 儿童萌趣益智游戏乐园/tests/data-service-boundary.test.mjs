@@ -9,7 +9,8 @@ describe('game data service boundary', () => {
 
     assert.match(source, /\bexport interface GameDataPort\b/);
     assert.match(source, /\bcreateCloudGameDataPort\b/);
-    assert.match(source, /const activeGameDataPort = localGameDataPort/);
+    assert.match(source, /\bresolveGameDataPort\b/);
+    assert.match(source, /useWechatCloud: isWechatCloudDataEnabled\(\)/);
     assert.match(source, /\bexport function loadGameState\b/);
     assert.match(source, /\bexport function saveGameState\b/);
     assert.match(source, /\bexport function syncLeaderboard\b/);
@@ -27,6 +28,8 @@ describe('game data service boundary', () => {
 
   it('keeps the future cloud port explicit and inactive by default', () => {
     const cloudSource = readFileSync(resolve('src/utils/cloudGameDataPort.ts'), 'utf8');
+    const dataServiceSource = readFileSync(resolve('src/utils/gameDataService.ts'), 'utf8');
+    const adapterSource = readFileSync(resolve('src/utils/wechatCloudAdapter.ts'), 'utf8');
 
     assert.match(cloudSource, /\bexport function createCloudGameDataPort\b/);
     assert.match(cloudSource, /loginOrCreateUser/);
@@ -34,5 +37,7 @@ describe('game data service boundary', () => {
     assert.match(cloudSource, /saveGameState/);
     assert.match(cloudSource, /getLeaderboard/);
     assert.doesNotMatch(cloudSource, /\bwx\.cloud\b/);
+    assert.match(dataServiceSource, /VITE_USE_WECHAT_CLOUD/);
+    assert.match(adapterSource, /\bwx\?\.\s*cloud\?\.\s*callFunction\b/);
   });
 });
