@@ -30,6 +30,11 @@ describe('game data service boundary', () => {
     const cloudSource = readFileSync(resolve('src/utils/cloudGameDataPort.ts'), 'utf8');
     const dataServiceSource = readFileSync(resolve('src/utils/gameDataService.ts'), 'utf8');
     const adapterSource = readFileSync(resolve('src/utils/wechatCloudAdapter.ts'), 'utf8');
+    const envExampleSource = readFileSync(resolve('.env.example'), 'utf8');
+    const deploymentChecklistSource = readFileSync(
+      resolve('..', 'AI知识库', '儿童萌趣益智游戏乐园', '微信云开发部署前清单.md'),
+      'utf8',
+    );
 
     assert.match(cloudSource, /\bexport function createCloudGameDataPort\b/);
     assert.match(cloudSource, /loginOrCreateUser/);
@@ -39,5 +44,11 @@ describe('game data service boundary', () => {
     assert.doesNotMatch(cloudSource, /\bwx\.cloud\b/);
     assert.match(dataServiceSource, /VITE_USE_WECHAT_CLOUD/);
     assert.match(adapterSource, /\bwx\?\.\s*cloud\?\.\s*callFunction\b/);
+    assert.match(envExampleSource, /^VITE_USE_WECHAT_CLOUD=false$/m);
+    assert.doesNotMatch(envExampleSource, /^VITE_USE_WECHAT_CLOUD=true$/m);
+    assert.match(deploymentChecklistSource, /VITE_USE_WECHAT_CLOUD=false/);
+    assert.match(deploymentChecklistSource, /VITE_USE_WECHAT_CLOUD=true/);
+    assert.match(deploymentChecklistSource, /test:cloudfunctions/);
+    assert.match(deploymentChecklistSource, /verify:android/);
   });
 });
