@@ -21,3 +21,13 @@ Initial read path:
 - `getLeaderboard`
 
 Write operations such as `claimDailyCheckin`, `submitGameResult`, `purchaseFood`, `feedCompanion`, and `claimAchievementReward` should be added only after the read path is proven in a real WeChat cloud environment.
+
+## Real WeChat rollout entry
+
+Before opening the cloud data switch, read:
+
+1. `../../AI知识库/儿童萌趣益智游戏乐园/微信云开发真实接入操作闭环.md`
+2. `../../AI知识库/儿童萌趣益智游戏乐园/云函数接口契约.md`
+3. `../../AI知识库/儿童萌趣益智游戏乐园/微信云开发部署前清单.md`
+
+Deploy `loginOrCreateUser` first and keep `VITE_USE_WECHAT_CLOUD=false` until all rollout checks pass.
