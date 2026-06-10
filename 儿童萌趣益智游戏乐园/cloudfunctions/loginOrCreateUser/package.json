@@ -1,0 +1,9 @@
+{
+  "name": "login-or-create-user",
+  "version": "0.1.0",
+  "private": true,
+  "main": "index.cjs",
+  "dependencies": {
+    "wx-server-sdk": "latest"
+  }
+}

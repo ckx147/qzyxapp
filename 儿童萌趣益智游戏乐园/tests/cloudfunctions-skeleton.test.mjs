@@ -4,6 +4,12 @@ import { existsSync, readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 const cloudFunctionDirs = [];
+const implementationDraftFunctions = [
+  'loginOrCreateUser',
+  'getHomeState',
+  'saveGameState',
+  'getLeaderboard',
+];
 
 describe('cloudfunctions skeleton', () => {
   it('keeps the initial read-path cloud function directories documented', () => {
@@ -74,8 +80,29 @@ describe('cloudfunctions skeleton', () => {
   it('keeps cloud function names aligned with the frontend cloud port', () => {
     const portSource = readFileSync(resolve('src/utils/cloudGameDataPort.ts'), 'utf8');
 
-    for (const fnName of ['loginOrCreateUser', 'getHomeState', 'saveGameState', 'getLeaderboard', ...cloudFunctionDirs]) {
+    for (const fnName of [...implementationDraftFunctions, ...cloudFunctionDirs]) {
       assert.match(portSource, new RegExp(`${fnName}: '${fnName}'`));
+    }
+  });
+
+  it('keeps implementation draft cloud functions deployable by WeChat cloud tooling', () => {
+    for (const fnName of implementationDraftFunctions) {
+      const packagePath = resolve('cloudfunctions', fnName, 'package.json');
+      const indexPath = resolve('cloudfunctions', fnName, 'index.cjs');
+      const readmePath = resolve('cloudfunctions', fnName, 'README.md');
+
+      assert.ok(existsSync(readmePath), `${fnName} README.md should exist`);
+      assert.ok(existsSync(indexPath), `${fnName} index.cjs should exist`);
+      assert.ok(existsSync(packagePath), `${fnName} package.json should exist`);
+
+      const manifest = JSON.parse(readFileSync(packagePath, 'utf8'));
+      assert.equal(manifest.private, true, `${fnName} package should be private`);
+      assert.equal(manifest.main, 'index.cjs', `${fnName} package main should point to index.cjs`);
+      assert.equal(
+        manifest.dependencies?.['wx-server-sdk'],
+        'latest',
+        `${fnName} package should depend on wx-server-sdk`,
+      );
     }
   });
 });
