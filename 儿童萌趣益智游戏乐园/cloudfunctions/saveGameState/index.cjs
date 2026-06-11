@@ -115,25 +115,27 @@ async function saveGameState({ openid, repositories, state, now = new Date() }) 
   const achievements = sanitizeAchievements(state.achievements);
   const checkIn = sanitizeCheckIn(state.checkIn);
 
-  await repositories.users.update(user._id, {
-    nickname: profile.nickname,
-    avatarId: profile.avatarId,
-    updatedAt: nowIso,
-  });
-  await repositories.userStats.upsertForUser(user._id, openid, {
-    pointsBalance: profile.points,
-    feedHappiness: profile.feedHappiness,
-    records: profile.records,
-    checkInStreak: checkIn.streak,
-    lastCheckInDate: checkIn.lastCheckInDate,
-    updatedAt: nowIso,
-  });
-  await repositories.achievements.replaceForUser(user._id, openid, achievements, nowIso);
-  await repositories.inventoryItems.replaceForUser(user._id, openid, profile.inventory, nowIso);
-  await repositories.checkins.upsertForUser(user._id, openid, {
-    ...checkIn,
-    updatedAt: nowIso,
-  });
+  await Promise.all([
+    repositories.users.update(user._id, {
+      nickname: profile.nickname,
+      avatarId: profile.avatarId,
+      updatedAt: nowIso,
+    }),
+    repositories.userStats.upsertForUser(user._id, openid, {
+      pointsBalance: profile.points,
+      feedHappiness: profile.feedHappiness,
+      records: profile.records,
+      checkInStreak: checkIn.streak,
+      lastCheckInDate: checkIn.lastCheckInDate,
+      updatedAt: nowIso,
+    }),
+    repositories.achievements.replaceForUser(user._id, openid, achievements, nowIso),
+    repositories.inventoryItems.replaceForUser(user._id, openid, profile.inventory, nowIso),
+    repositories.checkins.upsertForUser(user._id, openid, {
+      ...checkIn,
+      updatedAt: nowIso,
+    }),
+  ]);
 
   return buildResponse(profile, achievements, checkIn);
 }
@@ -161,9 +163,7 @@ function createCollectionRepository(db, collectionName) {
 }
 
 async function removeRows(repository, rows) {
-  for (const row of rows) {
-    await repository.collection.doc(row._id).remove();
-  }
+  await Promise.all(rows.map(row => repository.collection.doc(row._id).remove()));
 }
 
 function createDatabaseRepositories(db) {
@@ -194,30 +194,28 @@ function createDatabaseRepositories(db) {
     achievements: {
       async replaceForUser(userId, openid, rows, nowIso) {
         await removeRows(achievements, await achievements.findAllByUserId(userId));
-        for (const row of rows) {
-          await achievements.add({
+        await Promise.all(rows.map(row => achievements.add({
             userId,
             _openid: openid,
             ...row,
             createdAt: nowIso,
             updatedAt: nowIso,
-          });
-        }
+          })));
       },
     },
     inventoryItems: {
       async replaceForUser(userId, openid, inventory, nowIso) {
         await removeRows(inventoryItems, await inventoryItems.findAllByUserId(userId));
-        for (const [itemName, count] of Object.entries(inventory)) {
-          await inventoryItems.add({
+        await Promise.all(Object.entries(inventory).map(([itemName, count]) => (
+          inventoryItems.add({
             userId,
             _openid: openid,
             itemName,
             count,
             createdAt: nowIso,
             updatedAt: nowIso,
-          });
-        }
+          })
+        )));
       },
     },
     checkins: {

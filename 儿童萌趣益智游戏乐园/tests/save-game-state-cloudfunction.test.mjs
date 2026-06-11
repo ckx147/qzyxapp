@@ -4,7 +4,10 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 const { DEFAULT_RECORDS } = require('../cloudfunctions/loginOrCreateUser/index.cjs');
-const { saveGameState } = require('../cloudfunctions/saveGameState/index.cjs');
+const {
+  createDatabaseRepositories,
+  saveGameState,
+} = require('../cloudfunctions/saveGameState/index.cjs');
 
 function clone(value) {
   return JSON.parse(JSON.stringify(value));
@@ -145,6 +148,134 @@ function createState(overrides = {}) {
 }
 
 describe('saveGameState cloud function core', () => {
+  it('starts independent game-state writes concurrently', async () => {
+    const started = [];
+    let releaseWrites;
+    const writesReleased = new Promise(resolve => {
+      releaseWrites = resolve;
+    });
+    const waitForWriteBatch = name => async () => {
+      started.push(name);
+      if (started.length === 5) releaseWrites();
+      await writesReleased;
+    };
+    const repositories = {
+      users: {
+        async findByOpenid() {
+          return { _id: 'user_current', _openid: 'openid_current' };
+        },
+        update: waitForWriteBatch('users'),
+      },
+      userStats: {
+        upsertForUser: waitForWriteBatch('userStats'),
+      },
+      achievements: {
+        replaceForUser: waitForWriteBatch('achievements'),
+      },
+      inventoryItems: {
+        replaceForUser: waitForWriteBatch('inventoryItems'),
+      },
+      checkins: {
+        upsertForUser: waitForWriteBatch('checkins'),
+      },
+    };
+
+    await Promise.race([
+      saveGameState({
+        openid: 'openid_current',
+        repositories,
+        state: createState(),
+      }),
+      new Promise((_, reject) => {
+        setTimeout(() => reject(new Error(`writes remained serial: ${started.join(', ')}`)), 100);
+      }),
+    ]);
+
+    assert.deepEqual(new Set(started), new Set([
+      'users',
+      'userStats',
+      'achievements',
+      'inventoryItems',
+      'checkins',
+    ]));
+  });
+
+  it('adds replacement achievement rows concurrently', async () => {
+    let activeAdds = 0;
+    let maxActiveAdds = 0;
+    const collections = {
+      achievements: [
+        {
+          _id: 'old_achievement',
+          userId: 'user_current',
+          _openid: 'openid_current',
+        },
+      ],
+    };
+    const db = {
+      collection(name) {
+        const rows = collections[name] || (collections[name] = []);
+        return {
+          where(query) {
+            const matched = () => rows.filter(row => Object.entries(query).every(
+              ([key, value]) => row[key] === value,
+            ));
+            return {
+              async get() {
+                return { data: matched() };
+              },
+              limit() {
+                return {
+                  async get() {
+                    return { data: matched().slice(0, 1) };
+                  },
+                };
+              },
+            };
+          },
+          doc(id) {
+            return {
+              async remove() {
+                const index = rows.findIndex(row => row._id === id);
+                if (index >= 0) rows.splice(index, 1);
+              },
+              async update({ data }) {
+                const row = rows.find(item => item._id === id);
+                Object.assign(row, clone(data));
+              },
+            };
+          },
+          async add({ data }) {
+            activeAdds += 1;
+            maxActiveAdds = Math.max(maxActiveAdds, activeAdds);
+            await new Promise(resolve => setTimeout(resolve, 10));
+            rows.push({ _id: `doc_${rows.length + 1}`, ...clone(data) });
+            activeAdds -= 1;
+          },
+        };
+      },
+    };
+    const repositories = createDatabaseRepositories(db);
+    const achievements = Array.from({ length: 10 }, (_, index) => ({
+      achievementId: `achievement_${index + 1}`,
+      tier: 1,
+      progress: index,
+      unlocked: false,
+      rewardsClaimed: false,
+      targetValue: 10,
+    }));
+
+    await repositories.achievements.replaceForUser(
+      'user_current',
+      'openid_current',
+      achievements,
+      '2026-06-11T00:00:00.000Z',
+    );
+
+    assert.ok(maxActiveAdds > 1, `expected concurrent adds, observed ${maxActiveAdds}`);
+    assert.equal(collections.achievements.length, 10);
+  });
+
   it('saves whitelisted profile stats, records, achievements, check-in, and inventory', async () => {
     const repositories = createRepositories({
       users: [
