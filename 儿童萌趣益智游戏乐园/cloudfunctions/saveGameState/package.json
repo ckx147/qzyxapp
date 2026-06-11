@@ -2,7 +2,7 @@
   "name": "save-game-state",
   "version": "0.1.0",
   "private": true,
-  "main": "index.cjs",
+  "main": "index.js",
   "dependencies": {
     "wx-server-sdk": "latest"
   }

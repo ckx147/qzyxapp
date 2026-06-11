@@ -41,14 +41,18 @@ describe('cloudfunctions skeleton', () => {
   it('keeps getHomeState as a tested implementation draft', () => {
     const readmePath = resolve('cloudfunctions', 'getHomeState', 'README.md');
     const sourcePath = resolve('cloudfunctions', 'getHomeState', 'index.cjs');
+    const entryPath = resolve('cloudfunctions', 'getHomeState', 'index.js');
     assert.ok(existsSync(readmePath), 'getHomeState README.md should exist');
     assert.ok(existsSync(sourcePath), 'getHomeState index.cjs should exist');
+    assert.ok(existsSync(entryPath), 'getHomeState index.js should exist');
 
     const readme = readFileSync(readmePath, 'utf8');
     const source = readFileSync(sourcePath, 'utf8');
+    const entry = readFileSync(entryPath, 'utf8');
     assert.match(readme, /Status: implementation draft/);
     assert.match(source, /exports\.getHomeState = getHomeState/);
     assert.match(source, /exports\.main = async function main/);
+    assert.match(entry, /require\('\.\/index\.cjs'\)/);
   });
 
   it('keeps getLeaderboard as a tested implementation draft', () => {
@@ -89,15 +93,22 @@ describe('cloudfunctions skeleton', () => {
     for (const fnName of implementationDraftFunctions) {
       const packagePath = resolve('cloudfunctions', fnName, 'package.json');
       const indexPath = resolve('cloudfunctions', fnName, 'index.cjs');
+      const entryPath = resolve('cloudfunctions', fnName, 'index.js');
       const readmePath = resolve('cloudfunctions', fnName, 'README.md');
 
       assert.ok(existsSync(readmePath), `${fnName} README.md should exist`);
       assert.ok(existsSync(indexPath), `${fnName} index.cjs should exist`);
+      assert.ok(existsSync(entryPath), `${fnName} index.js should exist`);
       assert.ok(existsSync(packagePath), `${fnName} package.json should exist`);
 
       const manifest = JSON.parse(readFileSync(packagePath, 'utf8'));
       assert.equal(manifest.private, true, `${fnName} package should be private`);
-      assert.equal(manifest.main, 'index.cjs', `${fnName} package main should point to index.cjs`);
+      assert.equal(manifest.main, 'index.js', `${fnName} package main should point to its deploy entry`);
+      assert.match(
+        readFileSync(entryPath, 'utf8'),
+        /require\('\.\/index\.cjs'\)/,
+        `${fnName} index.js should forward to its tested CommonJS implementation`,
+      );
       assert.equal(
         manifest.dependencies?.['wx-server-sdk'],
         'latest',

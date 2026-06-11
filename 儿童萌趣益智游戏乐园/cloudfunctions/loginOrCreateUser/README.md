@@ -66,7 +66,7 @@ In WeChat Developer Tools / Cloud Development:
    - `achievements`
    - `inventory_items`
 3. Upload/deploy the folder `cloudfunctions/loginOrCreateUser`.
-4. Confirm the deployed entry is `index.cjs`.
+4. Confirm the deployed execution method is `index.main`; `index.js` forwards to the tested `index.cjs` implementation.
 5. Confirm the package installs `wx-server-sdk`.
 6. Manually call `loginOrCreateUser` with an empty request `{}`.
 
